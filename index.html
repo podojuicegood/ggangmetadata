@@ -1,8 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>NAI Metadata Viewer</title>
+
+<script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+
+<style>
+body{
+font-family: Arial;
+padding:40px;
+background:#f5f5f5;
+}
+
+h1{
+margin-bottom:20px;
+}
+
+#preview{
+margin-top:20px;
+border-radius:10px;
+}
+
+#metadata{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-top:20px;
+white-space:pre-wrap;
+}
+</style>
+
 </head>
+
 <body>
 
 <h1>NovelAI Metadata Viewer</h1>
@@ -11,24 +41,50 @@
 
 <input type="file" id="imageInput">
 
-<br><br>
+<br>
 
 <img id="preview" width="300">
 
+<h2>Metadata</h2>
+
+<pre id="metadata">이미지를 업로드하면 메타데이터가 표시됩니다.</pre>
+
 <script>
 
-document.getElementById("imageInput").addEventListener("change", function(event) {
-  const file = event.target.files[0];
+document.getElementById("imageInput").addEventListener("change", async function(event) {
 
-  if (file) {
-    const reader = new FileReader();
+const file = event.target.files[0];
 
-    reader.onload = function(e) {
-      document.getElementById("preview").src = e.target.result;
-    };
+if(!file) return;
 
-    reader.readAsDataURL(file);
-  }
+
+// 이미지 미리보기
+
+const reader = new FileReader();
+
+reader.onload = function(e){
+document.getElementById("preview").src = e.target.result;
+};
+
+reader.readAsDataURL(file);
+
+
+// 메타데이터 읽기
+
+try{
+
+const metadata = await exifr.parse(file,true);
+
+document.getElementById("metadata").textContent =
+JSON.stringify(metadata,null,2);
+
+}catch(error){
+
+document.getElementById("metadata").textContent =
+"메타데이터를 읽을 수 없습니다.";
+
+}
+
 });
 
 </script>
