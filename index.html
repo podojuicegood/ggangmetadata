@@ -11,41 +11,79 @@
 
 body{
 font-family:Arial;
-margin:40px;
-background:#fafafa;
+background:#f6f6f6;
+padding:40px;
 }
 
-h1{
-margin-bottom:20px;
-}
-
-.viewer{
+.container{
 display:grid;
-grid-template-columns: 1fr 1fr 1fr;
-gap:25px;
-margin-top:20px;
+grid-template-columns: 420px 1fr;
+gap:40px;
+align-items:start;
 }
 
-.image-area img{
+.image-panel img{
 width:100%;
-border-radius:10px;
+border-radius:20px;
+background:white;
+box-shadow:0 6px 15px rgba(0,0,0,0.15);
 }
 
-.middle-area{
-overflow:auto;
+.right-panel{
+display:flex;
+flex-direction:column;
+gap:20px;
 }
 
-.right-area{
-overflow:auto;
+.top-row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
 }
 
-.promptbox{
-background:#f3f3f3;
-padding:12px;
-border-radius:8px;
+.card{
+background:white;
+border-radius:16px;
+padding:15px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.prompt-card{
+background:white;
+border-radius:16px;
+padding:15px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.prompt-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+.prompt-text{
 white-space:pre-wrap;
 word-break:break-word;
-margin-bottom:20px;
+}
+
+button{
+background:black;
+color:white;
+border:none;
+border-radius:10px;
+padding:6px 14px;
+cursor:pointer;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+td{
+padding:4px;
+border-bottom:1px solid #ddd;
 }
 
 </style>
@@ -54,18 +92,19 @@ margin-bottom:20px;
 
 <body>
 
-<h1>NovelAI Metadata Viewer</h1>
-
 <input type="file" id="imageInput">
 
-<div class="viewer">
+<div class="container">
 
-<div class="image-area">
+<div class="image-panel">
 <img id="preview">
 </div>
 
+<div class="right-panel">
 
-<div class="middle-area">
+<div class="top-row">
+
+<div class="card">
 
 <h3>Image Settings</h3>
 
@@ -77,102 +116,135 @@ margin-bottom:20px;
 <tr><td>Size</td><td id="size"></td></tr>
 </table>
 
-
-<h3>Base Prompt</h3>
-<button onclick="copyBase()">Copy</button>
-<div class="promptbox" id="prompt"></div>
-
-
-<h3>Negative Prompt</h3>
-<button onclick="copyNegative()">Copy</button>
-<div class="promptbox" id="negative"></div>
-
 </div>
 
 
-<div class="right-area">
+<div class="card">
 
 <h3>Character Prompt</h3>
-<div class="promptbox" id="charPrompt"></div>
+<div id="charPrompt"></div>
 
-<h3>Character UC</h3>
-<div class="promptbox" id="charUC"></div>
+<h3 style="margin-top:10px">Character UC</h3>
+<div id="charUC"></div>
+
+</div>
+
+</div>
+
+
+<div class="prompt-card">
+
+<div class="prompt-header">
+<h3>Prompt</h3>
+<button onclick="copyBase()">Copy</button>
+</div>
+
+<div class="prompt-text" id="prompt"></div>
+
+</div>
+
+
+<div class="prompt-card">
+
+<div class="prompt-header">
+<h3>Negative</h3>
+<button onclick="copyNegative()">Copy</button>
+</div>
+
+<div class="prompt-text" id="negative"></div>
 
 </div>
 
 </div>
+
+</div>
+
 
 <script>
 
-let currentPrompt="";
+let basePrompt=""
+let negativePrompt=""
 
 document.getElementById("imageInput").addEventListener("change", async function(event){
 
-const file = event.target.files[0];
-if(!file) return;
+const file=event.target.files[0]
+if(!file) return
 
 
-// 이미지 미리보기
-
-const reader=new FileReader();
+const reader=new FileReader()
 
 reader.onload=function(e){
-document.getElementById("preview").src=e.target.result;
-};
+document.getElementById("preview").src=e.target.result
+}
 
-reader.readAsDataURL(file);
+reader.readAsDataURL(file)
 
-
-// 메타데이터 추출
 
 try{
 
-const data=await exifr.parse(file,true);
+const data=await exifr.parse(file,true)
 
-let jsonText=null;
+let jsonText=null
 
 for(const key in data){
 
 if(typeof data[key]==="string" && data[key].includes('"prompt"')){
-jsonText=data[key];
+jsonText=data[key]
 }
 
 }
 
-if(!jsonText) return;
+if(!jsonText) return
 
-const nai=JSON.parse(jsonText);
+const nai=JSON.parse(jsonText)
 
 
-// 데이터 표시
+basePrompt=nai.prompt||""
+negativePrompt=nai.uc||""
 
-currentPrompt=nai.prompt||"";
+document.getElementById("prompt").textContent=basePrompt
+document.getElementById("negative").textContent=negativePrompt
 
-document.getElementById("prompt").textContent=currentPrompt;
-document.getElementById("negative").textContent=nai.uc||"";
 
-document.getElementById("seed").textContent=nai.seed||"-";
-document.getElementById("steps").textContent=nai.steps||"-";
-document.getElementById("sampler").textContent=nai.sampler||"-";
-document.getElementById("cfg").textContent=nai.scale||"-";
+document.getElementById("seed").textContent=nai.seed||"-"
+document.getElementById("steps").textContent=nai.steps||"-"
+document.getElementById("sampler").textContent=nai.sampler||"-"
+document.getElementById("cfg").textContent=nai.scale||"-"
+document.getElementById("size").textContent=nai.width+" x "+nai.height
 
-document.getElementById("size").textContent=
-nai.width+" x "+nai.height;
+
+let charPrompt=""
+let charUC=""
+
+try{
+
+charPrompt=nai.v4_prompt.caption.char_captions[0].char_caption||""
+charUC=nai.v4_negative_prompt.caption.char_captions[0].char_caption||""
+
+}catch{}
+
+document.getElementById("charPrompt").textContent=charPrompt
+document.getElementById("charUC").textContent=charUC
 
 
 }catch(err){
 
-console.log(err);
+console.log(err)
 
 }
 
-});
+})
 
-function copyPrompt(){
 
-navigator.clipboard.writeText(currentPrompt);
+function copyBase(){
 
-alert("Prompt copied");
+navigator.clipboard.writeText(basePrompt)
+
+}
+
+function copyNegative(){
+
+navigator.clipboard.writeText(negativePrompt)
 
 }
 
