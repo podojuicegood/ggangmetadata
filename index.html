@@ -100,7 +100,7 @@ font-size:12px;
 cursor:pointer;
   margin-top:-8px;
   transition:all 0.2s ease;
-  width:70px;
+  width:50px;
 }
 
 button:hover{
@@ -121,7 +121,7 @@ border-bottom:1px solid #ddd;
   
 #charPrompt,
 #charUC{
-max-height:120px;
+max-height:90px;
 overflow-y:auto;
 white-space:pre-wrap;
 }
@@ -179,7 +179,7 @@ word-break:break-word;
 
 <div class="prompt-header">
 <h3>Prompt</h3>
-<button onclick="copyBase()">Copy</button>
+<button id="copyPromptBtn" onclick="copyBase()">Copy</button>
 </div>
 
 <div class="prompt-text" id="prompt"></div>
@@ -191,7 +191,7 @@ word-break:break-word;
 
 <div class="prompt-header">
 <h3>Negative</h3>
-<button onclick="copyNegative()">Copy</button>
+<button id="copyNegativeBtn" onclick="copyNegative()">Copy</button>
 </div>
 
 <div class="prompt-text" id="negative"></div>
