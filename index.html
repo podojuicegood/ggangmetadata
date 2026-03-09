@@ -130,23 +130,36 @@ box-shadow:0 4px 10px rgba(183,187,163,0.1);
 font-size:12px;
 }
 
+#charPrompt,
+#charUC{
+width:100%;
+display:block;
+}
+  
 .char-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:15px;
 }
 
-.char-grid > div{
-width:100%;
+.char-grid h4{
+margin:0 0 5px 0;
+font-size:13px;
 }
 
-.char-grid div div{
-background:#f3f3f3;
-padding:10px;
-border-radius:10px;
+.char-grid div{
 white-space:pre-wrap;
 word-break:break-word;
-width:100%;
+}
+
+  input[type="file"]::file-selector-button {
+  background: #D3C0C8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 </style>
