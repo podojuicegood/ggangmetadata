@@ -7,14 +7,11 @@
 <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
 
 <style>
+
 body{
-font-family: Arial;
+font-family:Arial;
 padding:40px;
 background:#f5f5f5;
-}
-
-h1{
-margin-bottom:20px;
 }
 
 #preview{
@@ -22,13 +19,29 @@ margin-top:20px;
 border-radius:10px;
 }
 
-#metadata{
+.container{
 background:white;
 padding:20px;
 border-radius:10px;
 margin-top:20px;
+}
+
+.row{
+margin-bottom:10px;
+}
+
+.label{
+font-weight:bold;
+}
+
+.promptbox{
+background:#f2f2f2;
+padding:10px;
+border-radius:6px;
+margin-top:5px;
 white-space:pre-wrap;
 }
+
 </style>
 
 </head>
@@ -45,13 +58,46 @@ white-space:pre-wrap;
 
 <img id="preview" width="300">
 
-<h2>Metadata</h2>
+<div class="container">
 
-<pre id="metadata">이미지를 업로드하면 메타데이터가 표시됩니다.</pre>
+<h2>Image Settings</h2>
+
+<div class="row">
+<span class="label">Seed:</span>
+<span id="seed">-</span>
+</div>
+
+<div class="row">
+<span class="label">Steps:</span>
+<span id="steps">-</span>
+</div>
+
+<div class="row">
+<span class="label">Sampler:</span>
+<span id="sampler">-</span>
+</div>
+
+<div class="row">
+<span class="label">CFG Scale:</span>
+<span id="cfg">-</span>
+</div>
+
+<div class="row">
+<span class="label">Size:</span>
+<span id="size">-</span>
+</div>
+
+<h2>Prompt</h2>
+<div id="prompt" class="promptbox">-</div>
+
+<h2>Negative Prompt</h2>
+<div id="negative" class="promptbox">-</div>
+
+</div>
 
 <script>
 
-document.getElementById("imageInput").addEventListener("change", async function(event) {
+document.getElementById("imageInput").addEventListener("change", async function(event){
 
 const file = event.target.files[0];
 
@@ -62,8 +108,8 @@ if(!file) return;
 
 const reader = new FileReader();
 
-reader.onload = function(e){
-document.getElementById("preview").src = e.target.result;
+reader.onload=function(e){
+document.getElementById("preview").src=e.target.result;
 };
 
 reader.readAsDataURL(file);
@@ -73,15 +119,75 @@ reader.readAsDataURL(file);
 
 try{
 
-const metadata = await exifr.parse(file,true);
+const data = await exifr.parse(file,true);
 
-document.getElementById("metadata").textContent =
-JSON.stringify(metadata,null,2);
 
-}catch(error){
+// NovelAI PNG text metadata 찾기
 
-document.getElementById("metadata").textContent =
-"메타데이터를 읽을 수 없습니다.";
+let naiData=null;
+
+for(const key in data){
+
+if(typeof data[key] === "string" && data[key].includes("steps")){
+
+naiData=data[key];
+
+}
+
+}
+
+
+if(naiData){
+
+const lines=naiData.split("\n");
+
+let prompt=lines[0]||"";
+let negative="";
+let settings="";
+
+for(const line of lines){
+
+if(line.toLowerCase().includes("negative")){
+negative=line.replace("Negative prompt:","").trim();
+}
+
+if(line.toLowerCase().includes("steps")){
+settings=line;
+}
+
+}
+
+
+// prompt
+
+document.getElementById("prompt").textContent=prompt;
+
+
+// negative
+
+document.getElementById("negative").textContent=negative;
+
+
+// settings parsing
+
+const seed=settings.match(/Seed: ([0-9]+)/i);
+const steps=settings.match(/Steps: ([0-9]+)/i);
+const sampler=settings.match(/Sampler: ([^,]+)/i);
+const cfg=settings.match(/CFG scale: ([0-9.]+)/i);
+const size=settings.match(/Size: ([0-9x]+)/i);
+
+
+if(seed) document.getElementById("seed").textContent=seed[1];
+if(steps) document.getElementById("steps").textContent=steps[1];
+if(sampler) document.getElementById("sampler").textContent=sampler[1];
+if(cfg) document.getElementById("cfg").textContent=cfg[1];
+if(size) document.getElementById("size").textContent=size[1];
+
+}
+
+}catch(err){
+
+console.log(err);
 
 }
 
