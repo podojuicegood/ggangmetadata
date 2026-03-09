@@ -200,7 +200,7 @@ word-break:break-word;
 
 <div class="prompt-header">
 <h3>Prompt</h3>
-<button id="copyPromptBtn" onclick="copyBase()">Copy</button>
+<button onclick="copyBase()">Copy</button>
 </div>
 
 <div class="prompt-text" id="prompt"></div>
@@ -212,7 +212,7 @@ word-break:break-word;
 
 <div class="prompt-header">
 <h3>Negative</h3>
-<button id="copyNegativeBtn" onclick="copyNegative()">Copy</button>
+<button onclick="copyNegative()">Copy</button>
 </div>
 
 <div class="prompt-text" id="negative"></div>
@@ -222,20 +222,29 @@ word-break:break-word;
 
 <div class="top-row">
 
-<div class="prompt-card">
+<div class="card">
 
-<h3>Character</h3>
+<h3>Image Settings</h3>
 
-<div class="char-grid">
+<table>
+<tr><td>Seed</td><td id="seed"></td></tr>
+<tr><td>Steps</td><td id="steps"></td></tr>
+<tr><td>Sampler</td><td id="sampler"></td></tr>
+<tr><td>CFG</td><td id="cfg"></td></tr>
+<tr><td>Size</td><td id="size"></td></tr>
+</table>
 
-<div>
-<h4>Prompt</h4>
-<div id="charPrompt"></div>
 </div>
 
-<div>
-<h4>UC</h4>
+
+<div class="card">
+
+<h3>Character Prompt</h3>
+<div id="charPrompt"></div>
+
+<h3 style="margin-top:10px">Character UC</h3>
 <div id="charUC"></div>
+
 </div>
 
 </div>
