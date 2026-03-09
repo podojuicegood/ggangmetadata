@@ -31,7 +31,7 @@ align-items:start;
 width:100%;
 border-radius:20px;
 background:white;
-box-shadow:0 6px 15px rgba(205,208,187,0.15);
+box-shadow:0 6px 15px rgba(183,187,163,0.15);
 }
 
 .right-panel{
@@ -50,14 +50,14 @@ gap:15px;
 background:white;
 border-radius:16px;
 padding:15px;
-box-shadow:0 4px 10px rgba(205,208,187,0.1);
+box-shadow:0 4px 10px rgba(183,187,163,0.1);
 }
 
 .prompt-card{
 background:white;
 border-radius:16px;
 padding:15px;
-box-shadow:0 4px 10px rgba(205,208,187,0.1);
+box-shadow:0 4px 10px rgba(183,187,163,0.1);
 }
 
 .prompt-header{
@@ -82,15 +82,22 @@ white-space:pre-wrap;
 }
   
 button{
-background:#EAD8DC;
+background:#D3C0C8;
 color:white;
 border:none;
 border-radius:8px;
 padding:4px 10px;
 font-size:12px;
 cursor:pointer;
+  margin-top:-4px;
+  transition:all 0.2s ease;
 }
 
+button:hover{
+background:#d9c3c8;
+transform:translateY(-2px);
+}
+  
 table{
 width:100%;
 border-collapse:collapse;
@@ -121,7 +128,7 @@ border-bottom:1px solid #ddd;
 
 <div class="prompt-header">
 <h3>Prompt</h3>
-<button onclick="copyBase()">Copy</button>
+<button id="copyPromptBtn" onclick="copyBase()">Copy</button>
 </div>
 
 <div class="prompt-text" id="prompt"></div>
@@ -133,7 +140,7 @@ border-bottom:1px solid #ddd;
 
 <div class="prompt-header">
 <h3>Negative</h3>
-<button onclick="copyNegative()">Copy</button>
+<button id="copyNegativeBtn" onclick="copyNegative()">Copy</button>
 </div>
 
 <div class="prompt-text" id="negative"></div>
@@ -252,11 +259,27 @@ function copyBase(){
 
 navigator.clipboard.writeText(basePrompt)
 
+const btn=document.getElementById("copyPromptBtn")
+
+btn.textContent="복사완료!"
+
+setTimeout(()=>{
+btn.textContent="Copy"
+},1500)
+
 }
 
 function copyNegative(){
 
 navigator.clipboard.writeText(negativePrompt)
+
+const btn=document.getElementById("copyNegativeBtn")
+
+btn.textContent="복사완료!"
+
+setTimeout(()=>{
+btn.textContent="Copy"
+},1500)
 
 }
 
