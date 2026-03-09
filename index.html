@@ -100,6 +100,7 @@ font-size:12px;
 cursor:pointer;
   margin-top:-8px;
   transition:all 0.2s ease;
+  width:70px;
 }
 
 button:hover{
@@ -119,9 +120,9 @@ border-bottom:1px solid #ddd;
 
 #charPrompt,
 #charUC{
-  display:flex;
-width:100%;
-display:block;
+max-height:120px;
+overflow-y:auto;
+white-space:pre-wrap;
 }
   
 .char-grid{
