@@ -74,9 +74,17 @@ max-height:160px;
 overflow-y:auto;
 }
 
+::-webkit-scrollbar{
+width:6px;
+}
+
 ::-webkit-scrollbar-thumb{
 background:#BFC4B0;
-border-radius:10px;
+border-radius:8px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+background:#BFC4B0;
 }
   
 #charPrompt,
@@ -113,6 +121,31 @@ padding:4px;
 border-bottom:1px solid #ddd;
 }
 
+  .image-settings{
+margin-top:10px;
+font-size:13px;
+}
+
+.image-settings table{
+font-size:12px;
+}
+
+.char-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+.char-grid h4{
+margin:0 0 5px 0;
+font-size:13px;
+}
+
+.char-grid div{
+white-space:pre-wrap;
+word-break:break-word;
+}
+
 </style>
 
 </head>
@@ -124,7 +157,23 @@ border-bottom:1px solid #ddd;
 <div class="container">
 
 <div class="image-panel">
+
 <img id="preview">
+
+<div class="image-settings">
+
+<h3>Image Settings</h3>
+
+<table>
+<tr><td>Seed</td><td id="seed"></td></tr>
+<tr><td>Steps</td><td id="steps"></td></tr>
+<tr><td>Sampler</td><td id="sampler"></td></tr>
+<tr><td>CFG</td><td id="cfg"></td></tr>
+<tr><td>Size</td><td id="size"></td></tr>
+</table>
+
+</div>
+
 </div>
 
 <div class="right-panel">
@@ -170,14 +219,20 @@ border-bottom:1px solid #ddd;
 </div>
 
 
-<div class="card">
+<div class="prompt-card">
 
-<h3>Character Prompt</h3>
+<h3>Character</h3>
+
+<div class="char-grid">
+
+<div>
+<h4>Prompt</h4>
 <div id="charPrompt"></div>
+</div>
 
-<h3 style="margin-top:10px">Character UC</h3>
+<div>
+<h4>UC</h4>
 <div id="charUC"></div>
-
 </div>
 
 </div>
