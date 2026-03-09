@@ -20,58 +20,32 @@ margin-bottom:20px;
 }
 
 .viewer{
-display:flex;
-gap:30px;
+display:grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap:25px;
 margin-top:20px;
-}
-
-.image-area{
-flex:1;
 }
 
 .image-area img{
 width:100%;
 border-radius:10px;
-box-shadow:0 4px 10px rgba(0,0,0,0.15);
 }
 
-.data-area{
-flex:1;
+.middle-area{
 overflow:auto;
 }
 
-table{
-width:100%;
-border-collapse:collapse;
-margin-bottom:20px;
-}
-
-td{
-border-bottom:1px solid #ddd;
-padding:8px;
+.right-area{
+overflow:auto;
 }
 
 .promptbox{
-background:#f1f1f1;
+background:#f3f3f3;
 padding:12px;
 border-radius:8px;
 white-space:pre-wrap;
 word-break:break-word;
-margin-bottom:15px;
-}
-
-button{
-padding:8px 12px;
-border:none;
-border-radius:6px;
-background:#4a6cff;
-color:white;
-cursor:pointer;
 margin-bottom:20px;
-}
-
-button:hover{
-background:#324fe0;
 }
 
 </style>
@@ -90,7 +64,8 @@ background:#324fe0;
 <img id="preview">
 </div>
 
-<div class="data-area">
+
+<div class="middle-area">
 
 <h3>Image Settings</h3>
 
@@ -102,15 +77,26 @@ background:#324fe0;
 <tr><td>Size</td><td id="size"></td></tr>
 </table>
 
-<h3>Prompt</h3>
 
-<button onclick="copyPrompt()">Copy Prompt</button>
-
+<h3>Base Prompt</h3>
+<button onclick="copyBase()">Copy</button>
 <div class="promptbox" id="prompt"></div>
 
-<h3>Negative Prompt</h3>
 
+<h3>Negative Prompt</h3>
+<button onclick="copyNegative()">Copy</button>
 <div class="promptbox" id="negative"></div>
+
+</div>
+
+
+<div class="right-area">
+
+<h3>Character Prompt</h3>
+<div class="promptbox" id="charPrompt"></div>
+
+<h3>Character UC</h3>
+<div class="promptbox" id="charUC"></div>
 
 </div>
 
