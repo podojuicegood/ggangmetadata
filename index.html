@@ -157,11 +157,12 @@ word-break:break-word;
   padding: 4px 10px;
   font-size: 12px;
   cursor: pointer;
+  width:50px;
 }
 
 .file-controls{
 display:flex;
-gap:20px;
+gap:10px;
 margin-bottom:20px;
 align-items:center;
 }
@@ -202,8 +203,21 @@ margin-bottom:14px;
 display:flex;
 justify-content:flex-end;
 gap:8px;
+}.drop-zone{
+border:2px dashed #EAD8DC;
+border-radius:12px;
+padding:20px;
+text-align:center;
+color:#999;
+margin-bottom:15px;
+transition:all 0.2s ease;
 }
-  
+
+.drop-zone.dragover{
+background:#f8ecef;
+border-color:#d9c3c8;
+color:#333;
+}
 </style>
 
 </head>
@@ -230,7 +244,9 @@ gap:8px;
 </div>
 
 <div class="container">
-
+<div id="dropZone" class="drop-zone">
+이미지를 여기로 드래그해서 업로드
+</div>
 <div class="image-panel">
 
 <img id="preview">
@@ -303,76 +319,69 @@ let currentFile = null;
 let basePrompt=""
 let negativePrompt=""
 
-document.getElementById("imageInput").addEventListener("change", async function(event){
+document.getElementById("imageInput").addEventListener("change", function(event){
+  const file = event.target.files[0];
+  if(!file) return;
 
-const file=event.target.files[0]
-if(!file) return
-currentFile = file;
-document.getElementById("saveBtn").style.display = "inline-block";
+  handleImageFile(file);
+});
 
-const reader=new FileReader()
+async function handleImageFile(file){
 
-reader.onload=function(e){
-document.getElementById("preview").src=e.target.result
+  currentFile = file;
+  document.getElementById("saveBtn").style.display = "inline-block";
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    document.getElementById("preview").src = e.target.result;
+  };
+
+  reader.readAsDataURL(file);
+
+  try{
+
+    const data = await exifr.parse(file,true);
+
+    let jsonText = null;
+
+    for(const key in data){
+      if(typeof data[key] === "string" && data[key].includes('"prompt"')){
+        jsonText = data[key];
+      }
+    }
+
+    if(!jsonText) return;
+
+    const nai = JSON.parse(jsonText);
+
+    basePrompt = nai.prompt || "";
+    negativePrompt = nai.uc || "";
+
+    document.getElementById("prompt").textContent = basePrompt;
+    document.getElementById("negative").textContent = negativePrompt;
+
+    document.getElementById("seed").textContent = nai.seed || "-";
+    document.getElementById("steps").textContent = nai.steps || "-";
+    document.getElementById("sampler").textContent = nai.sampler || "-";
+    document.getElementById("cfg").textContent = nai.scale || "-";
+    document.getElementById("size").textContent = nai.width + " x " + nai.height;
+
+    let charPrompt = "";
+    let charUC = "";
+
+    try{
+      charPrompt = nai.v4_prompt.caption.char_captions[0].char_caption || "";
+      charUC = nai.v4_negative_prompt.caption.char_captions[0].char_caption || "";
+    }catch{}
+
+    document.getElementById("charPrompt").textContent = charPrompt;
+    document.getElementById("charUC").textContent = charUC;
+
+  }catch(err){
+    console.log(err);
+  }
 }
-
-reader.readAsDataURL(file)
-
-
-try{
-
-const data=await exifr.parse(file,true)
-
-let jsonText=null
-
-for(const key in data){
-
-if(typeof data[key]==="string" && data[key].includes('"prompt"')){
-jsonText=data[key]
-}
-
-}
-
-if(!jsonText) return
-
-const nai=JSON.parse(jsonText)
-
-
-basePrompt=nai.prompt||""
-negativePrompt=nai.uc||""
-
-document.getElementById("prompt").textContent=basePrompt
-document.getElementById("negative").textContent=negativePrompt
-
-
-document.getElementById("seed").textContent=nai.seed||"-"
-document.getElementById("steps").textContent=nai.steps||"-"
-document.getElementById("sampler").textContent=nai.sampler||"-"
-document.getElementById("cfg").textContent=nai.scale||"-"
-document.getElementById("size").textContent=nai.width+" x "+nai.height
-
-
-let charPrompt=""
-let charUC=""
-
-try{
-
-charPrompt=nai.v4_prompt.caption.char_captions[0].char_caption||""
-charUC=nai.v4_negative_prompt.caption.char_captions[0].char_caption||""
-
-}catch{}
-
-document.getElementById("charPrompt").textContent=charPrompt
-document.getElementById("charUC").textContent=charUC
-
-
-}catch(err){
-
-console.log(err)
-
-}
-
-})
 
 
 function copyBase(){
@@ -381,7 +390,7 @@ navigator.clipboard.writeText(basePrompt)
 
 const btn=document.getElementById("copyPromptBtn")
 
-btn.textContent="copied!"
+btn.textContent="Copied!"
 
 setTimeout(()=>{
 btn.textContent="Copy"
@@ -395,7 +404,7 @@ navigator.clipboard.writeText(negativePrompt)
 
 const btn=document.getElementById("copyNegativeBtn")
 
-btn.textContent="copied!"
+btn.textContent="Copied!"
 
 setTimeout(()=>{
 btn.textContent="Copy"
@@ -437,6 +446,27 @@ function saveImageAs(){
 
   closeSaveModal();
 }
+
+ const dropZone = document.getElementById("dropZone");
+
+dropZone.addEventListener("dragover", (e)=>{
+  e.preventDefault();
+  dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", ()=>{
+  dropZone.classList.remove("dragover");
+});
+
+dropZone.addEventListener("drop", (e)=>{
+  e.preventDefault();
+  dropZone.classList.remove("dragover");
+
+  const file = e.dataTransfer.files[0];
+  if(!file) return;
+
+  handleImageFile(file);
+}); 
 </script>
 
 </body>
