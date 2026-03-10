@@ -84,7 +84,8 @@
     #copyPromptBtn,
     #copyNegativeBtn,
     #copyCharPromptBtn,
-    #copyCharUCBtn{
+    #copyCharUCBtn,
+    .edit-btn{
       padding:3px 7px;
       font-size:11px;
       min-width:46px;
@@ -155,29 +156,20 @@
       min-width:0;
     }
 
-  .prompt-card,
-.card{
-  background:#fff;
-  border-radius:16px;
-  padding:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.08);
-  min-width:0;
-  height:190px;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-   border:2px solid #ead8dc;
-}
-.card{
-  background:#fff;
-  border-radius:16px;
-  padding:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.08);
-  min-width:0;
-  height:190px;
-  overflow:hidden;
-}
-    
+    .prompt-card,
+    .card{
+      background:#fff;
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.08);
+      min-width:0;
+      height:190px;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      border:2px solid #ead8dc;
+    }
+
     .prompt-header{
       display:flex;
       align-items:center;
@@ -192,14 +184,22 @@
       line-height:1.2;
     }
 
-   .prompt-text{
-  white-space:pre-wrap;
-  word-break:break-word;
-  overflow-wrap:anywhere;
-  line-height:1.45;
-  flex:1;
-  overflow-y:auto;
-}
+    .header-buttons{
+      margin-left:auto;
+      display:flex;
+      gap:6px;
+      align-items:center;
+    }
+
+    .prompt-text{
+      white-space:pre-wrap;
+      word-break:break-word;
+      overflow-wrap:anywhere;
+      line-height:1.45;
+      flex:1;
+      overflow-y:auto;
+      min-width:0;
+    }
 
     .top-row{
       display:grid;
@@ -212,6 +212,9 @@
       width:100%;
       border-collapse:collapse;
       font-size:13px;
+      display:block;
+      overflow-y:auto;
+      flex:1;
     }
 
     td{
@@ -230,12 +233,18 @@
       grid-template-columns:1fr 1fr;
       gap:14px;
       min-width:0;
+      min-height:0;
+      overflow:hidden;
+      flex:1;
     }
 
     .char-col{
-  min-width:0;
-  overflow:hidden;
-}
+      min-width:0;
+      min-height:0;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
 
     .char-head{
       display:flex;
@@ -250,17 +259,24 @@
       line-height:1.2;
     }
 
-.char-text{
-  white-space:pre-wrap;
-  word-break:break-word;
-  overflow-wrap:anywhere;
-  line-height:1.4;
+    .char-text{
+      white-space:pre-wrap;
+      word-break:break-word;
+      overflow-wrap:anywhere;
+      line-height:1.4;
+      height:100px;
+      overflow-y:auto;
+      overflow-x:hidden;
+      min-width:0;
+      flex:1;
+    }
 
-  height:100px;
-  overflow-y:auto;
-  overflow-x:hidden;
-  min-width:0;
-}
+    [contenteditable="true"]{
+      outline:2px solid #bea5c0;
+      background:#fffdfd;
+      border-radius:8px;
+      padding:4px;
+    }
 
     .gallery-section{
       margin-top:40px;
@@ -399,6 +415,7 @@
 
       .image-box{
         min-height:360px;
+        height:360px;
       }
     }
   </style>
@@ -426,17 +443,23 @@
       <div class="prompt-card">
         <div class="prompt-header">
           <h3>Prompt</h3>
-          <button type="button" id="copyPromptBtn" onclick="copyBase()">Copy</button>
+          <div class="header-buttons">
+            <button type="button" class="edit-btn" onclick="toggleEdit('prompt', this)">Edit</button>
+            <button type="button" id="copyPromptBtn" onclick="copyBase()">Copy</button>
+          </div>
         </div>
-        <div class="prompt-text" id="prompt"></div>
+        <div class="prompt-text" id="prompt" contenteditable="false"></div>
       </div>
 
       <div class="prompt-card">
         <div class="prompt-header">
           <h3>Negative</h3>
-          <button type="button" id="copyNegativeBtn" onclick="copyNegative()">Copy</button>
+          <div class="header-buttons">
+            <button type="button" class="edit-btn" onclick="toggleEdit('negative', this)">Edit</button>
+            <button type="button" id="copyNegativeBtn" onclick="copyNegative()">Copy</button>
+          </div>
         </div>
-        <div class="prompt-text" id="negative"></div>
+        <div class="prompt-text" id="negative" contenteditable="false"></div>
       </div>
 
       <div class="top-row">
@@ -458,17 +481,23 @@
             <div class="char-col">
               <div class="char-head">
                 <h4>Prompt</h4>
-                <button type="button" id="copyCharPromptBtn" onclick="copyCharPrompt()">Copy</button>
+                <div class="header-buttons">
+                  <button type="button" class="edit-btn" onclick="toggleEdit('charPrompt', this)">Edit</button>
+                  <button type="button" id="copyCharPromptBtn" onclick="copyCharPrompt()">Copy</button>
+                </div>
               </div>
-              <div class="char-text" id="charPrompt"></div>
+              <div class="char-text" id="charPrompt" contenteditable="false"></div>
             </div>
 
             <div class="char-col">
               <div class="char-head">
                 <h4>UC</h4>
-                <button type="button" id="copyCharUCBtn" onclick="copyCharUC()">Copy</button>
+                <div class="header-buttons">
+                  <button type="button" class="edit-btn" onclick="toggleEdit('charUC', this)">Edit</button>
+                  <button type="button" id="copyCharUCBtn" onclick="copyCharUC()">Copy</button>
+                </div>
               </div>
-              <div class="char-text" id="charUC"></div>
+              <div class="char-text" id="charUC" contenteditable="false"></div>
             </div>
           </div>
         </div>
@@ -581,6 +610,43 @@
 
       document.getElementById("charPrompt").textContent = currentCharPrompt;
       document.getElementById("charUC").textContent = currentCharUC;
+
+      resetEditStates();
+    }
+
+    function resetEditStates(){
+      const editableIds = ["prompt", "negative", "charPrompt", "charUC"];
+      editableIds.forEach(id => {
+        const el = document.getElementById(id);
+        if(el){
+          el.contentEditable = "false";
+        }
+      });
+
+      document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.textContent = "Edit";
+      });
+    }
+
+    function toggleEdit(id, btn){
+      const el = document.getElementById(id);
+      if(!el) return;
+
+      if(el.contentEditable === "true"){
+        el.contentEditable = "false";
+        btn.textContent = "Edit";
+      }else{
+        el.contentEditable = "true";
+        btn.textContent = "Save";
+        el.focus();
+
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     }
 
     function clearMetadataDisplay(){
@@ -598,6 +664,8 @@
       document.getElementById("size").textContent = "-";
       document.getElementById("charPrompt").textContent = "";
       document.getElementById("charUC").textContent = "";
+
+      resetEditStates();
     }
 
     function flashButton(buttonId, defaultText){
@@ -609,22 +677,26 @@
     }
 
     function copyBase(){
-      navigator.clipboard.writeText(basePrompt);
+      const text = document.getElementById("prompt").innerText;
+      navigator.clipboard.writeText(text);
       flashButton("copyPromptBtn", "Copy");
     }
 
     function copyNegative(){
-      navigator.clipboard.writeText(negativePrompt);
+      const text = document.getElementById("negative").innerText;
+      navigator.clipboard.writeText(text);
       flashButton("copyNegativeBtn", "Copy");
     }
 
     function copyCharPrompt(){
-      navigator.clipboard.writeText(currentCharPrompt);
+      const text = document.getElementById("charPrompt").innerText;
+      navigator.clipboard.writeText(text);
       flashButton("copyCharPromptBtn", "Copy");
     }
 
     function copyCharUC(){
-      navigator.clipboard.writeText(currentCharUC);
+      const text = document.getElementById("charUC").innerText;
+      navigator.clipboard.writeText(text);
       flashButton("copyCharUCBtn", "Copy");
     }
 
