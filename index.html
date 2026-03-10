@@ -155,15 +155,18 @@
       min-width:0;
     }
 
-    .prompt-card,.card {
-      background:#fff;
-      border-radius:16px;
-      padding:12px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.08);
-      min-width:0;
-      height: 180px;
-    }
-
+  .prompt-card,
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.08);
+  min-width:0;
+  height:180px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
     .prompt-header{
       display:flex;
       align-items:center;
@@ -178,14 +181,14 @@
       line-height:1.2;
     }
 
-    .prompt-text{
-      white-space:pre-wrap;
-      word-break:break-word;
-      line-height:1.45;
-      max-height:220px;
-      overflow-y:auto;
-      min-width:0;
-    }
+   .prompt-text{
+  white-space:pre-wrap;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  line-height:1.45;
+  flex:1;
+  overflow-y:auto;
+}
 
     .top-row{
       display:grid;
@@ -235,13 +238,12 @@
       line-height:1.2;
     }
 
-    .char-text{
+.char-text{
   white-space:pre-wrap;
   word-break:break-word;
-  line-height:1.4;
-  height:180px;
+  overflow-wrap:anywhere;
+  flex:1;
   overflow-y:auto;
-  min-width:0;
 }
 
     .gallery-section{
