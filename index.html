@@ -610,16 +610,17 @@
       </div>
 
       <div class="top-row">
-        <div class="card image-settings">
+       <div class="card image-settings">
   <h3>Image Settings</h3>
-          <table>
-            <tr><td>Seed</td><td id="seed"></td></tr>
-            <tr><td>Steps</td><td id="steps"></td></tr>
-            <tr><td>Sampler</td><td id="sampler"></td></tr>
-            <tr><td>CFG</td><td id="cfg"></td></tr>
-            <tr><td>Size</td><td id="size"></td></tr>
-          </table>
-        </div>
+  <table>
+    <tr><td>Seed</td><td id="seed"></td></tr>
+    <tr><td>Steps</td><td id="steps"></td></tr>
+    <tr><td>Sampler</td><td id="sampler"></td></tr>
+    <tr><td>CFG</td><td id="cfg"></td></tr>
+    <tr><td>Size</td><td id="size"></td></tr>
+    <tr><td>Prompt Guidance Rescale</td><td id="rescale"></td></tr>
+  </table>
+</div>
 
         <div class="card">
           <h3 style="margin-bottom:10px;">Character</h3>
@@ -801,12 +802,13 @@
       document.getElementById("negative").textContent = negativePrompt;
 
       document.getElementById("seed").textContent = nai.seed || "-";
-      document.getElementById("steps").textContent = nai.steps || "-";
-      document.getElementById("sampler").textContent = nai.sampler || "-";
-      document.getElementById("cfg").textContent = nai.scale || "-";
-      document.getElementById("size").textContent =
-        (nai.width && nai.height) ? `${nai.width} x ${nai.height}` : "-";
+document.getElementById("steps").textContent = nai.steps || "-";
+document.getElementById("sampler").textContent = nai.sampler || "-";
+document.getElementById("cfg").textContent = nai.scale || "-";
+document.getElementById("size").textContent =
+  (nai.width && nai.height) ? `${nai.width} x ${nai.height}` : "-";
 
+document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
       try{
         currentCharPrompt = nai.v4_prompt.caption.char_captions[0].char_caption || "";
         currentCharUC = nai.v4_negative_prompt.caption.char_captions[0].char_caption || "";
@@ -868,7 +870,7 @@
       document.getElementById("size").textContent = "-";
       document.getElementById("charPrompt").textContent = "";
       document.getElementById("charUC").textContent = "";
-
+document.getElementById("rescale").textContent = "-";
       resetEditStates();
     }
 
