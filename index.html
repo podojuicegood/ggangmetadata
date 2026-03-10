@@ -16,6 +16,7 @@
       --bg-color:#f4f3f0;
       --card-color:#ffffff;
       --button-color:#e0b2be;
+      --button-text-color:#ffffff;
       --border-color:#d3d7c1;
       --edit-color:#eae9e6;
       --text-color:#333333;
@@ -24,7 +25,8 @@
       --image-drag-bg:#eae9e6;
       --image-drag-border:#d3d7c1;
       --placeholder-color:#9b8d91;
-      --button-shadow:0 2px 7px rgba(201,141,170,0.25);
+      --button-shadow-color:#c98daa;
+      --button-shadow-rgba:rgba(201,141,170,0.25);
     }
 
     @font-face {
@@ -69,6 +71,7 @@
 
     h3,h4{
       font-family:'OneStoreMobileGothicTitleFont', sans-serif;
+      color:var(--text-color);
     }
 
     .file-controls{
@@ -85,7 +88,7 @@
 
     button{
       background:var(--button-color);
-      color:#fff;
+      color:var(--button-text-color);
       border:none;
       border-radius:8px;
       padding:6px 12px;
@@ -100,7 +103,7 @@
     }
 
     button:hover{
-      box-shadow:var(--button-shadow);
+      box-shadow:0 2px 7px var(--button-shadow-rgba);
     }
 
     #copyPromptBtn,
@@ -190,6 +193,7 @@
       flex-direction:column;
       overflow:hidden;
       border:2px solid var(--border-color);
+      color:var(--text-color);
     }
 
     .prompt-header{
@@ -227,6 +231,7 @@
       padding:4px;
       border-radius:8px;
       transition:background-color 0.15s ease;
+      color:var(--text-color);
     }
 
     .top-row{
@@ -244,18 +249,20 @@
       overflow-y:auto;
       flex:1;
       min-height:0;
-      padding-top:3px;
+      color:var(--text-color);
     }
 
     td{
       padding:6px 4px;
       border-bottom:1px solid #eee;
       vertical-align:top;
+      padding-top:4px;
     }
 
     td:first-child{
       width:80px;
-      color:#666;
+      color:var(--text-color);
+      opacity:0.8;
     }
 
     .char-grid{
@@ -304,6 +311,7 @@
       padding:4px;
       border-radius:8px;
       transition:background-color 0.15s ease;
+      color:var(--text-color);
     }
 
     [contenteditable="true"]{
@@ -352,7 +360,7 @@
     .gallery-info{
       padding:8px;
       font-size:11px;
-      color:#666;
+      color:var(--text-color);
       background:var(--card-color);
       white-space:nowrap;
       overflow:hidden;
@@ -364,8 +372,8 @@
       top:8px;
       right:8px;
       min-width:auto;
-      width:35px;
-      height:35px;
+      width:15px;
+      height:15px;
       border-radius:999px;
       padding:0;
       font-size:12px;
@@ -399,15 +407,13 @@
       padding:20px;
       box-shadow:0 10px 30px rgba(0,0,0,0.18);
       border:2px solid var(--border-color);
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
+      color:var(--text-color);
     }
 
     .modal-box h3{
       margin:0 0 12px 0;
       font-size:16px;
-      flex-shrink:0;
+      color:var(--text-color);
     }
 
     .modal-box input[type="text"]{
@@ -419,7 +425,8 @@
       margin-bottom:14px;
       outline:none;
       font-family:'Pretendard', sans-serif;
-      flex-shrink:0;
+      color:var(--text-color);
+      background:#fff;
     }
 
     .modal-box input[type="color"]{
@@ -429,14 +436,13 @@
       background:transparent;
       padding:0;
       margin-bottom:12px;
-      flex-shrink:0;
     }
 
     .theme-label{
       display:block;
       margin-bottom:6px;
       font-size:13px;
-      flex-shrink:0;
+      color:var(--text-color);
     }
 
     .modal-actions{
@@ -444,7 +450,11 @@
       justify-content:flex-end;
       gap:8px;
       margin-top:10px;
-      flex-shrink:0;
+    }
+
+    #themeModal .modal-box{
+      overflow-y:auto;
+      display:block;
     }
 
     .theme-list{
@@ -452,10 +462,6 @@
       display:flex;
       flex-direction:column;
       gap:8px;
-      flex:1;
-      min-height:0;
-      overflow-y:auto;
-      padding-right:2px;
     }
 
     .theme-item{
@@ -465,7 +471,6 @@
       background:rgba(0,0,0,0.03);
       padding:8px;
       border-radius:10px;
-      flex-shrink:0;
     }
 
     .theme-name{
@@ -474,6 +479,7 @@
       overflow:hidden;
       text-overflow:ellipsis;
       white-space:nowrap;
+      color:var(--text-color);
     }
 
     .theme-small-btn{
@@ -646,14 +652,23 @@
       <label class="theme-label">카드색</label>
       <input type="color" id="themeCard">
 
+      <label class="theme-label">글자색</label>
+      <input type="color" id="themeText">
+
       <label class="theme-label">버튼색</label>
       <input type="color" id="themeButton">
+
+      <label class="theme-label">버튼 글자색</label>
+      <input type="color" id="themeButtonText">
 
       <label class="theme-label">테두리색</label>
       <input type="color" id="themeBorder">
 
       <label class="theme-label">Edit 배경색</label>
       <input type="color" id="themeEdit">
+
+      <label class="theme-label">버튼 그림자색</label>
+      <input type="color" id="themeButtonShadow">
 
       <input type="text" id="themeName" placeholder="테마 이름 입력">
 
@@ -670,16 +685,19 @@
   <script>
     const GALLERY_DB_NAME = "nai_metadata_gallery_db";
     const GALLERY_STORE_NAME = "galleryItems";
-    const THEMES_STORAGE_KEY = "ggang_saved_themes_v1";
-    const ACTIVE_THEME_STORAGE_KEY = "ggang_active_theme_v1";
+    const THEMES_STORAGE_KEY = "ggang_saved_themes_v2";
+    const ACTIVE_THEME_STORAGE_KEY = "ggang_active_theme_v2";
 
     const DEFAULT_THEME = {
       name: "Default",
       bgColor: "#f4f3f0",
       cardColor: "#ffffff",
+      textColor: "#333333",
       buttonColor: "#e0b2be",
+      buttonTextColor: "#ffffff",
       borderColor: "#d3d7c1",
-      editColor: "#eae9e6"
+      editColor: "#eae9e6",
+      buttonShadowColor: "#c98daa"
     };
 
     let currentFile = null;
@@ -1112,9 +1130,12 @@
       const style = getComputedStyle(document.documentElement);
       document.getElementById("themeBg").value = rgbToHex(style.getPropertyValue("--bg-color").trim());
       document.getElementById("themeCard").value = rgbToHex(style.getPropertyValue("--card-color").trim());
+      document.getElementById("themeText").value = rgbToHex(style.getPropertyValue("--text-color").trim());
       document.getElementById("themeButton").value = rgbToHex(style.getPropertyValue("--button-color").trim());
+      document.getElementById("themeButtonText").value = rgbToHex(style.getPropertyValue("--button-text-color").trim());
       document.getElementById("themeBorder").value = rgbToHex(style.getPropertyValue("--border-color").trim());
       document.getElementById("themeEdit").value = rgbToHex(style.getPropertyValue("--edit-color").trim());
+      document.getElementById("themeButtonShadow").value = rgbToHex(style.getPropertyValue("--button-shadow-color").trim());
     }
 
     function getThemeFromInputs(){
@@ -1122,18 +1143,34 @@
         name: document.getElementById("themeName").value.trim() || "새 테마",
         bgColor: document.getElementById("themeBg").value,
         cardColor: document.getElementById("themeCard").value,
+        textColor: document.getElementById("themeText").value,
         buttonColor: document.getElementById("themeButton").value,
+        buttonTextColor: document.getElementById("themeButtonText").value,
         borderColor: document.getElementById("themeBorder").value,
-        editColor: document.getElementById("themeEdit").value
+        editColor: document.getElementById("themeEdit").value,
+        buttonShadowColor: document.getElementById("themeButtonShadow").value
       };
+    }
+
+    function hexToRgba(hex, alpha){
+      const clean = hex.replace("#", "");
+      const bigint = parseInt(clean, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r},${g},${b},${alpha})`;
     }
 
     function applyTheme(theme){
       document.documentElement.style.setProperty("--bg-color", theme.bgColor);
       document.documentElement.style.setProperty("--card-color", theme.cardColor);
+      document.documentElement.style.setProperty("--text-color", theme.textColor);
       document.documentElement.style.setProperty("--button-color", theme.buttonColor);
+      document.documentElement.style.setProperty("--button-text-color", theme.buttonTextColor);
       document.documentElement.style.setProperty("--border-color", theme.borderColor);
       document.documentElement.style.setProperty("--edit-color", theme.editColor);
+      document.documentElement.style.setProperty("--button-shadow-color", theme.buttonShadowColor);
+      document.documentElement.style.setProperty("--button-shadow-rgba", hexToRgba(theme.buttonShadowColor, 0.35));
 
       localStorage.setItem(ACTIVE_THEME_STORAGE_KEY, JSON.stringify(theme));
     }
