@@ -474,8 +474,19 @@
     </div>
   </div>
 
+  <div id="galleryModal" class="modal" style="display:none;">
+    <div class="modal-box">
+      <h3>갤러리 이름 설정</h3>
+      <input type="text" id="galleryItemName" placeholder="갤러리에 표시할 이름 입력">
+      <div class="modal-actions">
+        <button type="button" onclick="closeGalleryModal()">취소</button>
+        <button type="button" onclick="confirmAddToGallery()">저장</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const GALLERY_STORAGE_KEY = "nai_metadata_gallery_v1";
+    const GALLERY_STORAGE_KEY = "nai_metadata_gallery_v2";
 
     let currentFile = null;
     let basePrompt = "";
@@ -483,6 +494,7 @@
     let currentCharPrompt = "";
     let currentCharUC = "";
     let galleryData = [];
+    let pendingGalleryFile = null;
 
     document.getElementById("imageInput").addEventListener("change", function(event){
       const file = event.target.files[0];
@@ -520,7 +532,6 @@
         }
 
         const nai = JSON.parse(jsonText);
-
         applyMetadataToUI(nai);
 
       }catch(err){
@@ -635,10 +646,32 @@
 
     function addCurrentToGallery(){
       if(!currentFile) return;
-      addToGallery(currentFile);
+
+      pendingGalleryFile = currentFile;
+      const baseName = currentFile.name.replace(/\.[^/.]+$/, "");
+      document.getElementById("galleryItemName").value = baseName;
+      document.getElementById("galleryModal").style.display = "flex";
     }
 
-    async function addToGallery(file){
+    function closeGalleryModal(){
+      document.getElementById("galleryModal").style.display = "none";
+      pendingGalleryFile = null;
+    }
+
+    function confirmAddToGallery(){
+      if(!pendingGalleryFile) return;
+
+      let customName = document.getElementById("galleryItemName").value.trim();
+      if(!customName){
+        customName = pendingGalleryFile.name.replace(/\.[^/.]+$/, "");
+      }
+
+      addToGallery(pendingGalleryFile, customName);
+      document.getElementById("galleryModal").style.display = "none";
+      pendingGalleryFile = null;
+    }
+
+    async function addToGallery(file, customName){
       const duplicate = await isDuplicateFile(file);
       if(duplicate) return;
 
@@ -649,7 +682,8 @@
 
       const item = {
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-        name: file.name,
+        name: customName || file.name,
+        originalFileName: file.name,
         imageDataUrl,
         metadataJson
       };
@@ -722,17 +756,16 @@
       });
     }
 
-    function loadGalleryItem(id){
+    async function loadGalleryItem(id){
       const item = galleryData.find(g => g.id === id);
       if(!item) return;
-
-      currentFile = null;
-      document.getElementById("saveBtn").style.display = "none";
-      document.getElementById("addGalleryBtn").style.display = "none";
 
       document.getElementById("preview").src = item.imageDataUrl;
       document.getElementById("preview").style.display = "block";
       document.getElementById("imagePlaceholder").style.display = "none";
+
+      document.getElementById("saveBtn").style.display = "inline-block";
+      document.getElementById("addGalleryBtn").style.display = "none";
 
       try{
         const nai = JSON.parse(item.metadataJson);
@@ -740,6 +773,30 @@
       }catch(err){
         console.log(err);
       }
+
+      try{
+        currentFile = dataURLToFile(
+          item.imageDataUrl,
+          item.originalFileName || item.name || "image.png"
+        );
+      }catch(err){
+        console.log(err);
+      }
+    }
+
+    function dataURLToFile(dataUrl, filename){
+      const arr = dataUrl.split(",");
+      const mimeMatch = arr[0].match(/:(.*?);/);
+      const mime = mimeMatch ? mimeMatch[1] : "image/png";
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+
+      while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+
+      return new File([u8arr], filename, { type: mime });
     }
 
     function deleteGalleryItem(id){
