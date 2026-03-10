@@ -547,9 +547,21 @@
       .theme-button{
         margin-left:0;
       }
-      .image-settings table{
-  overflow:visible;
-  display:table;
+     .image-settings{
+  overflow:visible !important;
+}
+
+.image-settings table{
+  display:table !important;
+  width:100%;
+  overflow:visible !important;
+  flex:none !important;
+  min-height:auto !important;
+}
+
+.image-settings::-webkit-scrollbar,
+.image-settings table::-webkit-scrollbar{
+  display:none;
 }
     }
   </style>
