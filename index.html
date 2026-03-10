@@ -11,35 +11,35 @@
     *{
       box-sizing:border-box;
     }
-    h3,h4{
-font-family:'OneStoreMobileGothicTitleFont', sans-serif;
-}
-@font-face {
-font-family: 'Cafe24Surround';
-src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24Ssurround.woff') format('woff');
-font-weight: normal;
-font-display: swap;
-}
 
-@font-face {
-font-family: 'Pretendard';
-src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Regular.woff2') format('woff2');
-font-weight: 400;
-font-display: swap;
-}
-@font-face {
-    font-family: 'TMoneyDungunbaram';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/TmoneyRoundWindExtraBold.woff') format('woff');
-    font-weight: 800;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'OneStoreMobileGothicTitleFont';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Title.woff') format('woff');
-    font-weight: normal;
-    font-display: swap;
-}
-    
+    @font-face {
+      font-family: 'Cafe24Surround';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24Ssurround.woff') format('woff');
+      font-weight: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'Pretendard';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Regular.woff2') format('woff2');
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'TMoneyDungunbaram';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/TmoneyRoundWindExtraBold.woff') format('woff');
+      font-weight: 800;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'OneStoreMobileGothicTitleFont';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Title.woff') format('woff');
+      font-weight: normal;
+      font-display: swap;
+    }
+
     body{
       margin:0;
       padding:32px;
@@ -48,11 +48,16 @@ font-display: swap;
       color:#333;
     }
 
+    h3,h4{
+      font-family:'OneStoreMobileGothicTitleFont', sans-serif;
+    }
+
     .file-controls{
       display:flex;
       gap:10px;
       align-items:center;
       margin-bottom:16px;
+      flex-wrap:wrap;
     }
 
     button{
@@ -239,6 +244,73 @@ font-display: swap;
       min-width:0;
     }
 
+    .gallery-section{
+      margin-top:40px;
+    }
+
+    .gallery-title{
+      margin:0 0 14px 0;
+      font-size:20px;
+    }
+
+    .gallery-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));
+      gap:14px;
+    }
+
+    .gallery-item{
+      position:relative;
+      background:#fff;
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+      transition:transform 0.15s ease;
+    }
+
+    .gallery-item:hover{
+      transform:scale(1.03);
+    }
+
+    .gallery-thumb{
+      width:100%;
+      aspect-ratio:1 / 1;
+      object-fit:cover;
+      display:block;
+      cursor:pointer;
+    }
+
+    .gallery-info{
+      padding:8px;
+      font-size:11px;
+      color:#666;
+      background:#fff;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .gallery-delete{
+      position:absolute;
+      top:8px;
+      right:8px;
+      min-width:auto;
+      width:24px;
+      height:24px;
+      border-radius:999px;
+      padding:0;
+      font-size:12px;
+      line-height:1;
+      background:rgba(0,0,0,0.65);
+      color:#fff;
+      font-family:'Pretendard', sans-serif;
+    }
+
+    .gallery-delete:hover{
+      background:rgba(0,0,0,0.8);
+      transform:none;
+    }
+
     .modal{
       position:fixed;
       inset:0;
@@ -270,6 +342,7 @@ font-display: swap;
       font-size:14px;
       margin-bottom:14px;
       outline:none;
+      font-family:'Pretendard', sans-serif;
     }
 
     .modal-actions{
@@ -317,6 +390,7 @@ font-display: swap;
   <div class="file-controls">
     <button type="button" onclick="document.getElementById('imageInput').click()">파일 선택</button>
     <button type="button" id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
+    <button type="button" id="addGalleryBtn" onclick="addCurrentToGallery()" style="display:none;">갤러리 추가</button>
     <input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
   </div>
 
@@ -384,6 +458,11 @@ font-display: swap;
     </div>
   </div>
 
+  <div class="gallery-section">
+    <h3 class="gallery-title">Gallery</h3>
+    <div id="gallery" class="gallery-grid"></div>
+  </div>
+
   <div id="saveModal" class="modal" style="display:none;">
     <div class="modal-box">
       <h3>파일 이름 설정</h3>
@@ -396,11 +475,14 @@ font-display: swap;
   </div>
 
   <script>
+    const GALLERY_STORAGE_KEY = "nai_metadata_gallery_v1";
+
     let currentFile = null;
     let basePrompt = "";
     let negativePrompt = "";
     let currentCharPrompt = "";
     let currentCharUC = "";
+    let galleryData = [];
 
     document.getElementById("imageInput").addEventListener("change", function(event){
       const file = event.target.files[0];
@@ -411,6 +493,7 @@ font-display: swap;
     async function handleImageFile(file){
       currentFile = file;
       document.getElementById("saveBtn").style.display = "inline-block";
+      document.getElementById("addGalleryBtn").style.display = "inline-block";
 
       const reader = new FileReader();
       reader.onload = function(e){
@@ -432,46 +515,59 @@ font-display: swap;
         }
 
         if(!jsonText){
-          document.getElementById("prompt").textContent = "";
-          document.getElementById("negative").textContent = "";
-          document.getElementById("seed").textContent = "-";
-          document.getElementById("steps").textContent = "-";
-          document.getElementById("sampler").textContent = "-";
-          document.getElementById("cfg").textContent = "-";
-          document.getElementById("size").textContent = "-";
-          document.getElementById("charPrompt").textContent = "";
-          document.getElementById("charUC").textContent = "";
+          clearMetadataDisplay();
           return;
         }
 
         const nai = JSON.parse(jsonText);
 
-        basePrompt = nai.prompt || "";
-        negativePrompt = nai.uc || "";
-        currentCharPrompt = "";
-        currentCharUC = "";
-
-        document.getElementById("prompt").textContent = basePrompt;
-        document.getElementById("negative").textContent = negativePrompt;
-
-        document.getElementById("seed").textContent = nai.seed || "-";
-        document.getElementById("steps").textContent = nai.steps || "-";
-        document.getElementById("sampler").textContent = nai.sampler || "-";
-        document.getElementById("cfg").textContent = nai.scale || "-";
-        document.getElementById("size").textContent =
-          (nai.width && nai.height) ? `${nai.width} x ${nai.height}` : "-";
-
-        try{
-          currentCharPrompt = nai.v4_prompt.caption.char_captions[0].char_caption || "";
-          currentCharUC = nai.v4_negative_prompt.caption.char_captions[0].char_caption || "";
-        }catch(e){}
-
-        document.getElementById("charPrompt").textContent = currentCharPrompt;
-        document.getElementById("charUC").textContent = currentCharUC;
+        applyMetadataToUI(nai);
 
       }catch(err){
         console.log(err);
       }
+    }
+
+    function applyMetadataToUI(nai){
+      basePrompt = nai.prompt || "";
+      negativePrompt = nai.uc || "";
+      currentCharPrompt = "";
+      currentCharUC = "";
+
+      document.getElementById("prompt").textContent = basePrompt;
+      document.getElementById("negative").textContent = negativePrompt;
+
+      document.getElementById("seed").textContent = nai.seed || "-";
+      document.getElementById("steps").textContent = nai.steps || "-";
+      document.getElementById("sampler").textContent = nai.sampler || "-";
+      document.getElementById("cfg").textContent = nai.scale || "-";
+      document.getElementById("size").textContent =
+        (nai.width && nai.height) ? `${nai.width} x ${nai.height}` : "-";
+
+      try{
+        currentCharPrompt = nai.v4_prompt.caption.char_captions[0].char_caption || "";
+        currentCharUC = nai.v4_negative_prompt.caption.char_captions[0].char_caption || "";
+      }catch(e){}
+
+      document.getElementById("charPrompt").textContent = currentCharPrompt;
+      document.getElementById("charUC").textContent = currentCharUC;
+    }
+
+    function clearMetadataDisplay(){
+      basePrompt = "";
+      negativePrompt = "";
+      currentCharPrompt = "";
+      currentCharUC = "";
+
+      document.getElementById("prompt").textContent = "";
+      document.getElementById("negative").textContent = "";
+      document.getElementById("seed").textContent = "-";
+      document.getElementById("steps").textContent = "-";
+      document.getElementById("sampler").textContent = "-";
+      document.getElementById("cfg").textContent = "-";
+      document.getElementById("size").textContent = "-";
+      document.getElementById("charPrompt").textContent = "";
+      document.getElementById("charUC").textContent = "";
     }
 
     function flashButton(buttonId, defaultText){
@@ -537,6 +633,140 @@ font-display: swap;
       closeSaveModal();
     }
 
+    function addCurrentToGallery(){
+      if(!currentFile) return;
+      addToGallery(currentFile);
+    }
+
+    async function addToGallery(file){
+      const duplicate = await isDuplicateFile(file);
+      if(duplicate) return;
+
+      const imageDataUrl = await readFileAsDataURL(file);
+      const metadataJson = await extractMetadataJsonFromFile(file);
+
+      if(!metadataJson) return;
+
+      const item = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        name: file.name,
+        imageDataUrl,
+        metadataJson
+      };
+
+      galleryData.push(item);
+      saveGalleryToStorage();
+      renderGallery();
+    }
+
+    async function isDuplicateFile(file){
+      const imageDataUrl = await readFileAsDataURL(file);
+      return galleryData.some(item => item.imageDataUrl === imageDataUrl);
+    }
+
+    function readFileAsDataURL(file){
+      return new Promise((resolve, reject)=>{
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function extractMetadataJsonFromFile(file){
+      try{
+        const data = await exifr.parse(file, true);
+
+        for(const key in data){
+          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
+            return data[key];
+          }
+        }
+      }catch(err){
+        console.log(err);
+      }
+      return null;
+    }
+
+    function renderGallery(){
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "";
+
+      galleryData.forEach((item)=>{
+        const wrapper = document.createElement("div");
+        wrapper.className = "gallery-item";
+
+        const img = document.createElement("img");
+        img.className = "gallery-thumb";
+        img.src = item.imageDataUrl;
+        img.alt = item.name || "gallery image";
+        img.onclick = () => loadGalleryItem(item.id);
+
+        const info = document.createElement("div");
+        info.className = "gallery-info";
+        info.textContent = item.name || "image";
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "gallery-delete";
+        deleteBtn.type = "button";
+        deleteBtn.textContent = "×";
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteGalleryItem(item.id);
+        };
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(deleteBtn);
+        wrapper.appendChild(info);
+        gallery.appendChild(wrapper);
+      });
+    }
+
+    function loadGalleryItem(id){
+      const item = galleryData.find(g => g.id === id);
+      if(!item) return;
+
+      currentFile = null;
+      document.getElementById("saveBtn").style.display = "none";
+      document.getElementById("addGalleryBtn").style.display = "none";
+
+      document.getElementById("preview").src = item.imageDataUrl;
+      document.getElementById("preview").style.display = "block";
+      document.getElementById("imagePlaceholder").style.display = "none";
+
+      try{
+        const nai = JSON.parse(item.metadataJson);
+        applyMetadataToUI(nai);
+      }catch(err){
+        console.log(err);
+      }
+    }
+
+    function deleteGalleryItem(id){
+      galleryData = galleryData.filter(item => item.id !== id);
+      saveGalleryToStorage();
+      renderGallery();
+    }
+
+    function saveGalleryToStorage(){
+      localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(galleryData));
+    }
+
+    function loadGalleryFromStorage(){
+      const raw = localStorage.getItem(GALLERY_STORAGE_KEY);
+      if(!raw) return;
+
+      try{
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)){
+          galleryData = parsed;
+          renderGallery();
+        }
+      }catch(err){
+        console.log(err);
+      }
+    }
+
     const dropZone = document.getElementById("dropZone");
 
     dropZone.addEventListener("dragover", (e)=>{
@@ -557,6 +787,8 @@ font-display: swap;
 
       handleImageFile(file);
     });
+
+    loadGalleryFromStorage();
   </script>
 </body>
 </html>
