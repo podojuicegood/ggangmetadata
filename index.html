@@ -486,7 +486,8 @@
   </div>
 
   <script>
-    const GALLERY_STORAGE_KEY = "nai_metadata_gallery_v2";
+    const GALLERY_DB_NAME = "nai_metadata_gallery_db";
+    const GALLERY_STORE_NAME = "galleryItems";
 
     let currentFile = null;
     let basePrompt = "";
@@ -658,7 +659,7 @@
       pendingGalleryFile = null;
     }
 
-    function confirmAddToGallery(){
+    async function confirmAddToGallery(){
       if(!pendingGalleryFile) return;
 
       let customName = document.getElementById("galleryItemName").value.trim();
@@ -666,15 +667,12 @@
         customName = pendingGalleryFile.name.replace(/\.[^/.]+$/, "");
       }
 
-      addToGallery(pendingGalleryFile, customName);
+      await addToGallery(pendingGalleryFile, customName);
       document.getElementById("galleryModal").style.display = "none";
       pendingGalleryFile = null;
     }
 
     async function addToGallery(file, customName){
-      const duplicate = await isDuplicateFile(file);
-      if(duplicate) return;
-
       const imageDataUrl = await readFileAsDataURL(file);
       const metadataJson = await extractMetadataJsonFromFile(file);
 
@@ -689,13 +687,8 @@
       };
 
       galleryData.push(item);
-      saveGalleryToStorage();
+      await saveGalleryToDB();
       renderGallery();
-    }
-
-    async function isDuplicateFile(file){
-      const imageDataUrl = await readFileAsDataURL(file);
-      return galleryData.some(item => item.imageDataUrl === imageDataUrl);
     }
 
     function readFileAsDataURL(file){
@@ -744,9 +737,9 @@
         deleteBtn.className = "gallery-delete";
         deleteBtn.type = "button";
         deleteBtn.textContent = "×";
-        deleteBtn.onclick = (e) => {
+        deleteBtn.onclick = async (e) => {
           e.stopPropagation();
-          deleteGalleryItem(item.id);
+          await deleteGalleryItem(item.id);
         };
 
         wrapper.appendChild(img);
@@ -799,29 +792,73 @@
       return new File([u8arr], filename, { type: mime });
     }
 
-    function deleteGalleryItem(id){
+    async function deleteGalleryItem(id){
       galleryData = galleryData.filter(item => item.id !== id);
-      saveGalleryToStorage();
+      await saveGalleryToDB();
       renderGallery();
     }
 
-    function saveGalleryToStorage(){
-      localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(galleryData));
+    function openGalleryDB(){
+      return new Promise((resolve, reject)=>{
+        const request = indexedDB.open(GALLERY_DB_NAME, 1);
+
+        request.onupgradeneeded = function(event){
+          const db = event.target.result;
+          if(!db.objectStoreNames.contains(GALLERY_STORE_NAME)){
+            db.createObjectStore(GALLERY_STORE_NAME, { keyPath: "id" });
+          }
+        };
+
+        request.onsuccess = function(){
+          resolve(request.result);
+        };
+
+        request.onerror = function(){
+          reject(request.error);
+        };
+      });
     }
 
-    function loadGalleryFromStorage(){
-      const raw = localStorage.getItem(GALLERY_STORAGE_KEY);
-      if(!raw) return;
+    async function saveGalleryToDB(){
+      const db = await openGalleryDB();
 
-      try{
-        const parsed = JSON.parse(raw);
-        if(Array.isArray(parsed)){
-          galleryData = parsed;
+      return new Promise((resolve, reject)=>{
+        const tx = db.transaction(GALLERY_STORE_NAME, "readwrite");
+        const store = tx.objectStore(GALLERY_STORE_NAME);
+
+        store.clear();
+        galleryData.forEach(item => {
+          store.put(item);
+        });
+
+        tx.oncomplete = function(){
+          resolve();
+        };
+
+        tx.onerror = function(){
+          reject(tx.error);
+        };
+      });
+    }
+
+    async function loadGalleryFromDB(){
+      const db = await openGalleryDB();
+
+      return new Promise((resolve, reject)=>{
+        const tx = db.transaction(GALLERY_STORE_NAME, "readonly");
+        const store = tx.objectStore(GALLERY_STORE_NAME);
+        const request = store.getAll();
+
+        request.onsuccess = function(){
+          galleryData = Array.isArray(request.result) ? request.result : [];
           renderGallery();
-        }
-      }catch(err){
-        console.log(err);
-      }
+          resolve();
+        };
+
+        request.onerror = function(){
+          reject(request.error);
+        };
+      });
     }
 
     const dropZone = document.getElementById("dropZone");
@@ -845,7 +882,7 @@
       handleImageFile(file);
     });
 
-    loadGalleryFromStorage();
+    loadGalleryFromDB();
   </script>
 </body>
 </html>
