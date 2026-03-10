@@ -109,6 +109,7 @@ cursor:pointer;
 button:hover{
 background:#d9c3c8;
 transform:translateY(-2px);
+  max-height:35px;
 }
   
 table{
@@ -219,8 +220,13 @@ gap:8px;
 <body>
 
 <div class="file-controls">
-  <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp">
-  <button id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
+
+<button onclick="document.getElementById('imageInput').click()">파일 선택</button>
+
+<button id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
+
+<input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
+
 </div>
 
 <div class="container">
