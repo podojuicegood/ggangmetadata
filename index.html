@@ -155,16 +155,72 @@ word-break:break-word;
   padding: 4px 10px;
   font-size: 12px;
   cursor: pointer;
-
 }
 
+.file-controls{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+align-items:center;
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.35);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:1000;
+}
+
+.modal-box{
+background:white;
+padding:20px;
+border-radius:16px;
+width:320px;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal-box h3{
+margin:0 0 12px 0;
+}
+
+.modal-box input{
+width:100%;
+padding:10px 12px;
+border:1px solid #ddd;
+border-radius:10px;
+font-size:14px;
+box-sizing:border-box;
+margin-bottom:14px;
+}
+
+.modal-actions{
+display:flex;
+justify-content:flex-end;
+gap:8px;
+}
+  
 </style>
 
 </head>
-
+<div id="saveModal" class="modal" style="display:none;">
+  <div class="modal-box">
+    <h3>파일 이름 설정</h3>
+    <input type="text" id="saveFileName" placeholder="새 파일 이름 입력">
+    <div class="modal-actions">
+      <button onclick="closeSaveModal()">취소</button>
+      <button onclick="saveImageAs()">저장</button>
+    </div>
+  </div>
+</div>
 <body>
 
-<input type="file" id="imageInput">
+<div class="file-controls">
+  <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp">
+  <button id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
+</div>
 
 <div class="container">
 
@@ -236,7 +292,7 @@ word-break:break-word;
 </div>
 
 <script>
-
+let currentFile = null;
 let basePrompt=""
 let negativePrompt=""
 
@@ -244,7 +300,8 @@ document.getElementById("imageInput").addEventListener("change", async function(
 
 const file=event.target.files[0]
 if(!file) return
-
+currentFile = file;
+document.getElementById("saveBtn").style.display = "inline-block";
 
 const reader=new FileReader()
 
@@ -338,7 +395,41 @@ btn.textContent="Copy"
 },1500)
 
 }
+function openSaveModal(){
+  if(!currentFile) return;
 
+  const baseName = currentFile.name.replace(/\.[^/.]+$/, "");
+  document.getElementById("saveFileName").value = baseName;
+  document.getElementById("saveModal").style.display = "flex";
+}
+
+function closeSaveModal(){
+  document.getElementById("saveModal").style.display = "none";
+}
+
+function saveImageAs(){
+  if(!currentFile) return;
+
+  let newName = document.getElementById("saveFileName").value.trim();
+
+  if(!newName){
+    newName = "image";
+  }
+
+  const ext = currentFile.name.split(".").pop() || "png";
+  const finalName = `${newName}.${ext}`;
+
+  const url = URL.createObjectURL(currentFile);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = finalName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  closeSaveModal();
+}
 </script>
 
 </body>
