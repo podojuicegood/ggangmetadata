@@ -47,21 +47,15 @@
       transform:translateY(-1px);
     }
 
-    .drop-zone{
-      border:2px dashed #EAD8DC;
-      border-radius:14px;
-      padding:18px;
-      text-align:center;
-      color:#9b8d91;
-      background:#fff;
-      margin-bottom:20px;
-      transition:all 0.2s ease;
-    }
-
-    .drop-zone.dragover{
-      background:#f8ecef;
-      border-color:#d9c3c8;
-      color:#5a4a4d;
+    #copyPromptBtn,
+    #copyNegativeBtn,
+    #copyCharPromptBtn,
+    #copyCharUCBtn{
+      padding:3px 7px;
+      font-size:11px;
+      min-width:46px;
+      height:24px;
+      border-radius:7px;
     }
 
     .container{
@@ -86,6 +80,15 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      position:relative;
+      border:2px dashed #ead8dc;
+      transition:all 0.2s ease;
+      overflow:hidden;
+    }
+
+    .image-box.dragover{
+      background:#f8ecef;
+      border-color:#d9c3c8;
     }
 
     #preview{
@@ -93,7 +96,22 @@
       max-height:100%;
       object-fit:contain;
       border-radius:14px;
-      display:block;
+      display:none;
+      position:relative;
+      z-index:2;
+    }
+
+    .image-placeholder{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:#9b8d91;
+      padding:20px;
+      z-index:1;
+      pointer-events:none;
     }
 
     .right-panel{
@@ -273,14 +291,13 @@
     <input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
   </div>
 
-  <div id="dropZone" class="drop-zone">
-    이미지를 여기로 드래그해서 업로드
-  </div>
-
   <div class="container">
     <div class="image-panel">
-      <div class="image-box">
+      <div class="image-box" id="dropZone">
         <img id="preview" alt="">
+        <div class="image-placeholder" id="imagePlaceholder">
+          이미지를 여기로 드래그해서 업로드
+        </div>
       </div>
     </div>
 
@@ -369,6 +386,8 @@
       const reader = new FileReader();
       reader.onload = function(e){
         document.getElementById("preview").src = e.target.result;
+        document.getElementById("preview").style.display = "block";
+        document.getElementById("imagePlaceholder").style.display = "none";
       };
       reader.readAsDataURL(file);
 
