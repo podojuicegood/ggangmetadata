@@ -12,6 +12,21 @@
       box-sizing:border-box;
     }
 
+    :root{
+      --bg-color:#f4f3f0;
+      --card-color:#ffffff;
+      --button-color:#e0b2be;
+      --border-color:#d3d7c1;
+      --edit-color:#eae9e6;
+      --text-color:#333333;
+      --scroll-track:#E7EBD4;
+      --scroll-thumb:#b1b89d;
+      --image-drag-bg:#eae9e6;
+      --image-drag-border:#d3d7c1;
+      --placeholder-color:#9b8d91;
+      --button-shadow:0 2px 7px rgba(201,141,170,0.25);
+    }
+
     @font-face {
       font-family: 'Cafe24Surround';
       src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24Ssurround.woff') format('woff');
@@ -39,16 +54,17 @@
       font-weight: normal;
       font-display: swap;
     }
-* {
-  cursor: url('https://cdn.cursors-4u.net/previews/tiny-star-5c7f5702-32.webp') 32 32, auto !important;
-}
+
+    * {
+      cursor: url('https://cdn.cursors-4u.net/previews/tiny-star-5c7f5702-32.webp') 32 32, auto !important;
+    }
+
     body{
       margin:0;
       padding:32px;
-      background:#f4f3f0;
+      background:var(--bg-color);
       font-family:'Pretendard', sans-serif;
-      color:#333;
-  
+      color:var(--text-color);
     }
 
     h3,h4{
@@ -63,8 +79,12 @@
       flex-wrap:wrap;
     }
 
+    .theme-button{
+      margin-left:auto;
+    }
+
     button{
-      background:#e0b2be;
+      background:var(--button-color);
       color:#fff;
       border:none;
       border-radius:8px;
@@ -80,7 +100,7 @@
     }
 
     button:hover{
-      box-shadow: 0 2px 7px rgba(201,141,170,0.25);
+      box-shadow:var(--button-shadow);
     }
 
     #copyPromptBtn,
@@ -109,7 +129,7 @@
     }
 
     .image-box{
-      background:#fff;
+      background:var(--card-color);
       border-radius:20px;
       padding:5px;
       box-shadow:0 4px 12px rgba(0,0,0,0.08);
@@ -118,14 +138,14 @@
       align-items:center;
       justify-content:center;
       position:relative;
-      border:2px solid #d3d7c1;
+      border:2px solid var(--border-color);
       transition:all 0.2s ease;
       overflow:hidden;
     }
 
     .image-box.dragover{
-      background:#eae9e6;
-      border-color:#d3d7c1;
+      background:var(--image-drag-bg);
+      border-color:var(--image-drag-border);
     }
 
     #preview{
@@ -145,7 +165,7 @@
       align-items:center;
       justify-content:center;
       text-align:center;
-      color:#9b8d91;
+      color:var(--placeholder-color);
       padding:20px;
       z-index:1;
       pointer-events:none;
@@ -160,7 +180,7 @@
 
     .prompt-card,
     .card{
-      background:#fff;
+      background:var(--card-color);
       border-radius:16px;
       padding:12px;
       box-shadow:0 4px 10px rgba(0,0,0,0.08);
@@ -169,7 +189,7 @@
       display:flex;
       flex-direction:column;
       overflow:hidden;
-      border:2px solid #d3d7c1;
+      border:2px solid var(--border-color);
     }
 
     .prompt-header{
@@ -241,12 +261,12 @@
     }
 
     .char-col{
-  min-width:0;
-  min-height:0;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
+      min-width:0;
+      min-height:0;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
 
     .char-head{
       display:flex;
@@ -274,10 +294,17 @@
     }
 
     [contenteditable="true"]{
-  outline:none;
-  background:#eae9e6;
-  border-radius:8px;
-}
+      outline:none;
+      background:var(--edit-color);
+      border-radius:8px;
+    }
+
+    .prompt-text,
+    .char-text{
+      padding:4px;
+      border-radius:8px;
+      transition:background-color 0.15s ease;
+    }
 
     .gallery-section{
       margin-top:40px;
@@ -296,11 +323,12 @@
 
     .gallery-item{
       position:relative;
-      background:#fff;
+      background:var(--card-color);
       border-radius:14px;
       overflow:hidden;
       box-shadow:0 2px 8px rgba(0,0,0,0.08);
       transition:transform 0.15s ease;
+      border:2px solid var(--border-color);
     }
 
     .gallery-item:hover{
@@ -319,7 +347,7 @@
       padding:8px;
       font-size:11px;
       color:#666;
-      background:#fff;
+      background:var(--card-color);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
@@ -357,11 +385,14 @@
     }
 
     .modal-box{
-      width:320px;
-      background:#fff;
+      width:340px;
+      max-height:80vh;
+      overflow-y:auto;
+      background:var(--card-color);
       border-radius:16px;
       padding:20px;
       box-shadow:0 10px 30px rgba(0,0,0,0.18);
+      border:2px solid var(--border-color);
     }
 
     .modal-box h3{
@@ -369,7 +400,7 @@
       font-size:16px;
     }
 
-    .modal-box input{
+    .modal-box input[type="text"]{
       width:100%;
       padding:10px 12px;
       border:1px solid #ddd;
@@ -380,10 +411,58 @@
       font-family:'Pretendard', sans-serif;
     }
 
+    .modal-box input[type="color"]{
+      width:100%;
+      height:40px;
+      border:none;
+      background:transparent;
+      padding:0;
+      margin-bottom:12px;
+    }
+
+    .theme-label{
+      display:block;
+      margin-bottom:6px;
+      font-size:13px;
+    }
+
     .modal-actions{
       display:flex;
       justify-content:flex-end;
       gap:8px;
+      margin-top:10px;
+    }
+
+    .theme-list{
+      margin-top:16px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .theme-item{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background:rgba(0,0,0,0.03);
+      padding:8px;
+      border-radius:10px;
+    }
+
+    .theme-name{
+      flex:1;
+      font-size:13px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .theme-small-btn{
+      min-width:auto;
+      width:56px;
+      height:26px;
+      font-size:11px;
+      padding:0 6px;
     }
 
     ::-webkit-scrollbar{
@@ -392,17 +471,17 @@
     }
 
     ::-webkit-scrollbar-track{
-      background:#E7EBD4;
+      background:var(--scroll-track);
       border-radius:10px;
     }
 
     ::-webkit-scrollbar-thumb{
-      background:#b1b89d;
+      background:var(--scroll-thumb);
       border-radius:10px;
     }
 
     ::-webkit-scrollbar-thumb:hover{
-      background:#b1b89d;
+      background:var(--scroll-thumb);
     }
 
     @media (max-width: 980px){
@@ -418,13 +497,11 @@
         min-height:360px;
         height:360px;
       }
+
+      .theme-button{
+        margin-left:0;
+      }
     }
-    .prompt-text,
-.char-text{
-  padding:4px;
-  border-radius:8px;
-  transition:background-color 0.15s ease;
-}
   </style>
 </head>
 <body>
@@ -434,6 +511,7 @@
     <button type="button" id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
     <button type="button" id="addGalleryBtn" onclick="addCurrentToGallery()" style="display:none;">갤러리 추가</button>
     <input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
+    <button type="button" class="theme-button" onclick="openThemeModal()">테마</button>
   </div>
 
   <div class="container">
@@ -539,9 +617,51 @@
     </div>
   </div>
 
+  <div id="themeModal" class="modal" style="display:none;">
+    <div class="modal-box">
+      <h3>테마 설정</h3>
+
+      <label class="theme-label">배경색</label>
+      <input type="color" id="themeBg">
+
+      <label class="theme-label">카드색</label>
+      <input type="color" id="themeCard">
+
+      <label class="theme-label">버튼색</label>
+      <input type="color" id="themeButton">
+
+      <label class="theme-label">테두리색</label>
+      <input type="color" id="themeBorder">
+
+      <label class="theme-label">Edit 배경색</label>
+      <input type="color" id="themeEdit">
+
+      <input type="text" id="themeName" placeholder="테마 이름 입력">
+
+      <div class="modal-actions">
+        <button type="button" onclick="resetThemeToDefault()">초기화</button>
+        <button type="button" onclick="saveTheme()">저장</button>
+        <button type="button" onclick="closeThemeModal()">닫기</button>
+      </div>
+
+      <div class="theme-list" id="themeList"></div>
+    </div>
+  </div>
+
   <script>
     const GALLERY_DB_NAME = "nai_metadata_gallery_db";
     const GALLERY_STORE_NAME = "galleryItems";
+    const THEMES_STORAGE_KEY = "ggang_saved_themes_v1";
+    const ACTIVE_THEME_STORAGE_KEY = "ggang_active_theme_v1";
+
+    const DEFAULT_THEME = {
+      name: "Default",
+      bgColor: "#f4f3f0",
+      cardColor: "#ffffff",
+      buttonColor: "#e0b2be",
+      borderColor: "#d3d7c1",
+      editColor: "#eae9e6"
+    };
 
     let currentFile = null;
     let basePrompt = "";
@@ -550,6 +670,7 @@
     let currentCharUC = "";
     let galleryData = [];
     let pendingGalleryFile = null;
+    let savedThemes = JSON.parse(localStorage.getItem(THEMES_STORAGE_KEY) || "[]");
 
     document.getElementById("imageInput").addEventListener("change", function(event){
       const file = event.target.files[0];
@@ -958,6 +1079,144 @@
       });
     }
 
+    function openThemeModal(){
+      fillThemeInputsFromCurrent();
+      renderThemeList();
+      document.getElementById("themeModal").style.display = "flex";
+    }
+
+    function closeThemeModal(){
+      document.getElementById("themeModal").style.display = "none";
+    }
+
+    function fillThemeInputsFromCurrent(){
+      const style = getComputedStyle(document.documentElement);
+      document.getElementById("themeBg").value = rgbToHex(style.getPropertyValue("--bg-color").trim());
+      document.getElementById("themeCard").value = rgbToHex(style.getPropertyValue("--card-color").trim());
+      document.getElementById("themeButton").value = rgbToHex(style.getPropertyValue("--button-color").trim());
+      document.getElementById("themeBorder").value = rgbToHex(style.getPropertyValue("--border-color").trim());
+      document.getElementById("themeEdit").value = rgbToHex(style.getPropertyValue("--edit-color").trim());
+    }
+
+    function getThemeFromInputs(){
+      return {
+        name: document.getElementById("themeName").value.trim() || "새 테마",
+        bgColor: document.getElementById("themeBg").value,
+        cardColor: document.getElementById("themeCard").value,
+        buttonColor: document.getElementById("themeButton").value,
+        borderColor: document.getElementById("themeBorder").value,
+        editColor: document.getElementById("themeEdit").value
+      };
+    }
+
+    function applyTheme(theme){
+      document.documentElement.style.setProperty("--bg-color", theme.bgColor);
+      document.documentElement.style.setProperty("--card-color", theme.cardColor);
+      document.documentElement.style.setProperty("--button-color", theme.buttonColor);
+      document.documentElement.style.setProperty("--border-color", theme.borderColor);
+      document.documentElement.style.setProperty("--edit-color", theme.editColor);
+
+      localStorage.setItem(ACTIVE_THEME_STORAGE_KEY, JSON.stringify(theme));
+    }
+
+    function saveTheme(){
+      const theme = getThemeFromInputs();
+
+      const existingIndex = savedThemes.findIndex(t => t.name === theme.name);
+      if(existingIndex >= 0){
+        savedThemes[existingIndex] = theme;
+      }else{
+        savedThemes.push(theme);
+      }
+
+      localStorage.setItem(THEMES_STORAGE_KEY, JSON.stringify(savedThemes));
+      applyTheme(theme);
+      renderThemeList();
+      document.getElementById("themeName").value = "";
+    }
+
+    function applySavedThemeByName(name){
+      const theme = savedThemes.find(t => t.name === name);
+      if(!theme) return;
+      applyTheme(theme);
+      fillThemeInputsFromCurrent();
+    }
+
+    function deleteSavedTheme(name){
+      savedThemes = savedThemes.filter(t => t.name !== name);
+      localStorage.setItem(THEMES_STORAGE_KEY, JSON.stringify(savedThemes));
+      renderThemeList();
+    }
+
+    function renderThemeList(){
+      const wrap = document.getElementById("themeList");
+      wrap.innerHTML = "";
+
+      if(savedThemes.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "theme-item";
+        empty.innerHTML = '<div class="theme-name">저장된 테마가 없습니다.</div>';
+        wrap.appendChild(empty);
+        return;
+      }
+
+      savedThemes.forEach(theme => {
+        const item = document.createElement("div");
+        item.className = "theme-item";
+
+        const name = document.createElement("div");
+        name.className = "theme-name";
+        name.textContent = theme.name;
+
+        const applyBtn = document.createElement("button");
+        applyBtn.type = "button";
+        applyBtn.className = "theme-small-btn";
+        applyBtn.textContent = "적용";
+        applyBtn.onclick = () => applySavedThemeByName(theme.name);
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "theme-small-btn";
+        delBtn.textContent = "삭제";
+        delBtn.onclick = () => deleteSavedTheme(theme.name);
+
+        item.appendChild(name);
+        item.appendChild(applyBtn);
+        item.appendChild(delBtn);
+        wrap.appendChild(item);
+      });
+    }
+
+    function resetThemeToDefault(){
+      applyTheme(DEFAULT_THEME);
+      fillThemeInputsFromCurrent();
+    }
+
+    function loadActiveTheme(){
+      const saved = localStorage.getItem(ACTIVE_THEME_STORAGE_KEY);
+      if(!saved) return;
+
+      try{
+        const theme = JSON.parse(saved);
+        applyTheme(theme);
+      }catch(err){
+        console.log(err);
+      }
+    }
+
+    function rgbToHex(color){
+      if(!color) return "#000000";
+      if(color.startsWith("#")) return color;
+
+      const result = color.match(/\d+/g);
+      if(!result) return "#000000";
+
+      return "#" + result.slice(0,3).map(x => {
+        const hex = parseInt(x, 10).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      }).join("");
+    }
+
     const dropZone = document.getElementById("dropZone");
 
     dropZone.addEventListener("dragover", (e)=>{
@@ -979,6 +1238,7 @@
       handleImageFile(file);
     });
 
+    loadActiveTheme();
     loadGalleryFromDB();
   </script>
 </body>
