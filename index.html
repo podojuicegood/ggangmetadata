@@ -378,7 +378,7 @@
       padding:0;
       font-size:12px;
       line-height:1;
-      background:rgba(0,0,0,0.65);
+      background:var(--button-color);
       color:#fff;
       font-family:'Pretendard', sans-serif;
     }
@@ -403,7 +403,7 @@
       width:340px;
       max-height:min(80vh, 700px);
       background:var(--card-color);
-      border-radius:16px;
+      border-radius:10px;
       padding:20px;
       box-shadow:0 10px 30px rgba(0,0,0,0.18);
       border:2px solid var(--border-color);
@@ -489,7 +489,27 @@
       font-size:11px;
       padding:0 6px;
     }
+.theme-modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
 
+.theme-modal-header h3{
+  margin:0;
+}
+
+.theme-close-btn{
+  min-width:auto;
+  width:26px;
+  height:26px;
+  padding:0;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1;
+}
     ::-webkit-scrollbar{
       width:6px;
       height:6px;
@@ -643,8 +663,11 @@
   </div>
 
   <div id="themeModal" class="modal" style="display:none;">
-    <div class="modal-box">
-      <h3>테마 설정</h3>
+ <div class="modal-box">
+  <div class="theme-modal-header">
+    <h3>테마 설정</h3>
+    <button type="button" class="theme-close-btn" onclick="closeThemeModal()">✕</button>
+  </div>
 
       <label class="theme-label">배경색</label>
       <input type="color" id="themeBg">
@@ -673,10 +696,9 @@
       <input type="text" id="themeName" placeholder="테마 이름 입력">
 
       <div class="modal-actions">
-        <button type="button" onclick="resetThemeToDefault()">초기화</button>
-        <button type="button" onclick="saveTheme()">저장</button>
-        <button type="button" onclick="closeThemeModal()">닫기</button>
-      </div>
+    <button type="button" onclick="resetThemeToDefault()">초기화</button>
+    <button type="button" onclick="saveTheme()">저장</button>
+  </div>
 
       <div class="theme-list" id="themeList"></div>
     </div>
