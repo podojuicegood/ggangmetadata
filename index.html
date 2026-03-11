@@ -1374,8 +1374,18 @@ document.getElementById("rescale").textContent = "-";
       handleImageFile(file);
     });
 
-    loadActiveTheme();
-    loadGalleryFromDB();
+loadActiveTheme();
+loadGalleryFromDB();
+
+function openThemeModal(){
+  fillThemeInputsFromCurrent();
+  renderThemeList();
+  document.getElementById("themeModal").style.display = "flex";
+}
+
+function closeThemeModal(){
+  document.getElementById("themeModal").style.display = "none";
+}
   </script>
 </body>
 </html>
