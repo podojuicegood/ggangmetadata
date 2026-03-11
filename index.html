@@ -27,8 +27,6 @@
       --placeholder-color:#9b8d91;
       --button-shadow-color:#c98daa;
       --button-shadow-rgba:rgba(201,141,170,0.25);
-      title-font:'OneStoreMobileGothicTitleFont', sans-serif;
-  --body-font:'Pretendard', sans-serif;
     }
 
     @font-face {
@@ -67,12 +65,12 @@
       margin:0;
       padding:32px;
       background:var(--bg-color);
-      font-family:var(--body-font);
+      font-family:'Pretendard', sans-serif;
       color:var(--text-color);
     }
 
     h3,h4{
-      font-family:var(--title-font);
+      font-family:'OneStoreMobileGothicTitleFont', sans-serif;
       color:var(--text-color);
     }
 
@@ -442,19 +440,7 @@
       border-radius:12px;
       margin-bottom:12px;
     }
-.modal-box select{
-  width:100%;
-  height:40px;
-  border:1px solid #ddd;
-  border-radius:10px;
-  font-size:14px;
-  margin-bottom:12px;
-  outline:none;
-  font-family:'Pretendard', sans-serif;
-  color:var(--text-color);
-  background:#fff;
-  padding:0 10px;
-}
+
     .theme-label{
       display:block;
       margin-bottom:6px;
@@ -703,21 +689,7 @@
     <h3>테마 설정</h3>
     <button type="button" class="theme-close-btn" onclick="closeThemeModal()">✕</button>
   </div>
-<label class="theme-label">제목 폰트</label>
-<select id="themeTitleFont">
-  <option value="'OneStoreMobileGothicTitleFont', sans-serif">OneStore</option>
-  <option value="'Cafe24Surround', sans-serif">Cafe24</option>
-  <option value="'TMoneyDungunbaram', sans-serif">TMoney</option>
-  <option value="'Pretendard', sans-serif">Pretendard</option>
-</select>
 
-<label class="theme-label">내용물 폰트</label>
-<select id="themeBodyFont">
-  <option value="'Pretendard', sans-serif">Pretendard</option>
-  <option value="'Cafe24Surround', sans-serif">Cafe24</option>
-  <option value="'TMoneyDungunbaram', sans-serif">TMoney</option>
-  <option value="'OneStoreMobileGothicTitleFont', sans-serif">OneStore</option>
-</select>
       <label class="theme-label">배경색</label>
       <input type="color" id="themeBg">
 
@@ -769,8 +741,6 @@
       borderColor: "#d3d7c1",
       editColor: "#eae9e6",
       buttonShadowColor: "#c98daa"
-        titleFont: "'OneStoreMobileGothicTitleFont', sans-serif",
-  bodyFont: "'Pretendard', sans-serif"
     };
 
     let currentFile = null;
@@ -1210,8 +1180,6 @@ document.getElementById("rescale").textContent = "-";
       document.getElementById("themeBorder").value = rgbToHex(style.getPropertyValue("--border-color").trim());
       document.getElementById("themeEdit").value = rgbToHex(style.getPropertyValue("--edit-color").trim());
       document.getElementById("themeButtonShadow").value = rgbToHex(style.getPropertyValue("--button-shadow-color").trim());
-        document.getElementById("themeTitleFont").value = style.getPropertyValue("--title-font").trim();
-  document.getElementById("themeBodyFont").value = style.getPropertyValue("--body-font").trim();
     }
 
     function getThemeFromInputs(){
@@ -1225,8 +1193,6 @@ document.getElementById("rescale").textContent = "-";
         borderColor: document.getElementById("themeBorder").value,
         editColor: document.getElementById("themeEdit").value,
         buttonShadowColor: document.getElementById("themeButtonShadow").value
-            titleFont: document.getElementById("themeTitleFont").value,
-    bodyFont: document.getElementById("themeBodyFont").value
       };
     }
 
@@ -1249,10 +1215,8 @@ document.getElementById("rescale").textContent = "-";
       document.documentElement.style.setProperty("--edit-color", theme.editColor);
       document.documentElement.style.setProperty("--button-shadow-color", theme.buttonShadowColor);
       document.documentElement.style.setProperty("--button-shadow-rgba", hexToRgba(theme.buttonShadowColor, 0.35));
-  document.documentElement.style.setProperty("--title-font", theme.titleFont || "'OneStoreMobileGothicTitleFont', sans-serif");
-  document.documentElement.style.setProperty("--body-font", theme.bodyFont || "'Pretendard', sans-serif");
+
       localStorage.setItem(ACTIVE_THEME_STORAGE_KEY, JSON.stringify(theme));
-      
     }
 
     function saveTheme(){
@@ -1374,18 +1338,8 @@ document.getElementById("rescale").textContent = "-";
       handleImageFile(file);
     });
 
-loadActiveTheme();
-loadGalleryFromDB();
-
-function openThemeModal(){
-  fillThemeInputsFromCurrent();
-  renderThemeList();
-  document.getElementById("themeModal").style.display = "flex";
-}
-
-function closeThemeModal(){
-  document.getElementById("themeModal").style.display = "none";
-}
+    loadActiveTheme();
+    loadGalleryFromDB();
   </script>
 </body>
 </html>
