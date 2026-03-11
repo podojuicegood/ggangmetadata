@@ -85,7 +85,11 @@
     .theme-button{
       margin-left:auto;
     }
-
+.right-buttons{
+  margin-left:auto;
+  display:flex;
+  gap:10px;
+}
     button{
       background:var(--button-color);
       color:var(--button-text-color);
@@ -568,15 +572,19 @@
 </head>
 <body>
 
-  <div class="file-controls">
-  <button type="button" onclick="document.getElementById('imageInput').click()">파일 선택</button>
-  <button type="button" id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
-  <button type="button" id="addGalleryBtn" onclick="addCurrentToGallery()" style="display:none;">갤러리 추가</button>
+ <div class="file-controls">
+
+  <button onclick="document.getElementById('imageInput').click()">파일 선택</button>
+  <button id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
+  <button id="addGalleryBtn" onclick="addCurrentToGallery()" style="display:none;">갤러리 추가</button>
+
   <input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
 
-  <button type="button" onclick="openMemoModal()">메모</button>
+  <div class="right-buttons">
+    <button onclick="openMemoModal()">메모</button>
+    <button onclick="openThemeModal()">테마</button>
+  </div>
 
-  <button type="button" class="theme-button" onclick="openThemeModal()">테마</button>
 </div>
 
   <div class="container">
