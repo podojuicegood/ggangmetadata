@@ -26,14 +26,7 @@
       --image-drag-border:#d3d7c1;
       --placeholder-color:#9b8d91;
       --button-shadow-color:#c98daa;
-      --button-shadow-rgba:rgba(201,141,170,0.25);
-    }
-
-    @font-face {
-      font-family: 'Cafe24Surround';
-      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24Ssurround.woff') format('woff');
-      font-weight: normal;
-      font-display: swap;
+      --button-shadow-rgba:rgba(201,141,170,0.35);
     }
 
     @font-face {
@@ -57,8 +50,8 @@
       font-display: swap;
     }
 
-    * {
-      cursor: url('https://cdn.cursors-4u.net/previews/tiny-star-5c7f5702-32.webp') 32 32, auto !important;
+    *{
+      cursor:url('https://cdn.cursors-4u.net/previews/tiny-star-5c7f5702-32.webp') 32 32, auto !important;
     }
 
     body{
@@ -85,11 +78,7 @@
     .theme-button{
       margin-left:auto;
     }
-.right-buttons{
-  margin-left:auto;
-  display:flex;
-  gap:10px;
-}
+
     button{
       background:var(--button-color);
       color:var(--button-text-color);
@@ -103,7 +92,7 @@
       height:30px;
       line-height:1;
       flex-shrink:0;
-      font-family:'Pretendard', sans-serif;
+      font-family:'TMoneyDungunbaram', sans-serif;
     }
 
     button:hover{
@@ -249,19 +238,17 @@
       width:100%;
       border-collapse:collapse;
       font-size:13px;
-      display:block;
-      overflow-y:auto;
-      flex:1;
-      min-height:0;
       color:var(--text-color);
-       padding-top:3px;
     }
 
     td{
-      padding:6px 5px;
+      padding:6px 4px;
       border-bottom:1px solid #eee;
       vertical-align:top;
-     
+    }
+
+    .image-settings tr:last-child td{
+      border-bottom:none;
     }
 
     td:first-child{
@@ -269,7 +256,7 @@
       color:var(--text-color);
       opacity:0.8;
     }
-    .image-settings tr:last-child td{border-bottom: none;}
+
     .char-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -336,8 +323,8 @@
 
     .gallery-grid{
       display:grid;
-      grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
-      gap:10px;
+      grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
+      gap:14px;
     }
 
     .gallery-item{
@@ -348,10 +335,12 @@
       box-shadow:0 2px 8px var(--button-shadow-rgba);
       transition:transform 0.15s ease;
       border:2px solid var(--border-color);
+      display:flex;
+      flex-direction:column;
     }
 
     .gallery-item:hover{
-      transform:scale(1.03);
+      transform:scale(1.02);
     }
 
     .gallery-thumb{
@@ -372,31 +361,68 @@
       text-overflow:ellipsis;
     }
 
+    .gallery-note{
+      width:100%;
+      min-height:64px;
+      max-height:120px;
+      resize:vertical;
+      border:none;
+      border-top:1px solid rgba(0,0,0,0.08);
+      padding:8px;
+      font-size:12px;
+      font-family:'Pretendard', sans-serif;
+      color:var(--text-color);
+      background:var(--card-color);
+      outline:none;
+    }
+
+    .gallery-note::placeholder{
+      color:#999;
+    }
+
+    .gallery-note-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:6px;
+      padding:8px;
+      padding-top:0;
+      background:var(--card-color);
+    }
+
+    .gallery-note-btn{
+      min-width:auto;
+      width:52px;
+      height:24px;
+      font-size:11px;
+      padding:0 6px;
+    }
+
     .gallery-delete{
       position:absolute;
       top:8px;
       right:8px;
       min-width:auto;
-      width:15px;
-      height:15px;
+      width:24px;
+      height:24px;
       border-radius:999px;
       padding:0;
       font-size:12px;
       line-height:1;
-      background:var(--button-color);
+      background:rgba(0,0,0,0.65);
       color:#fff;
       font-family:'Pretendard', sans-serif;
+      z-index:2;
     }
 
     .gallery-delete:hover{
-      background:var(--button-color);
+      background:rgba(0,0,0,0.8);
       transform:none;
     }
 
     .modal{
       position:fixed;
       inset:0;
-      background:rgb(0,0,0,0.3);
+      background:rgba(0,0,0,0.35);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -408,9 +434,9 @@
       width:340px;
       max-height:min(80vh, 700px);
       background:var(--card-color);
-      border-radius:10px;
+      border-radius:16px;
       padding:20px;
-      box-shadow:0 10px 30px var(--button-shadow-rgba);
+      box-shadow:0 10px 30px rgba(0,0,0,0.18);
       border:2px solid var(--border-color);
       color:var(--text-color);
     }
@@ -443,6 +469,28 @@
       margin-bottom:12px;
     }
 
+    .theme-modal-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .theme-modal-header h3{
+      margin:0;
+    }
+
+    .theme-close-btn{
+      min-width:auto;
+      width:26px;
+      height:26px;
+      padding:0;
+      border-radius:999px;
+      font-size:12px;
+      line-height:1;
+    }
+
     .theme-label{
       display:block;
       margin-bottom:6px;
@@ -454,7 +502,7 @@
       display:flex;
       justify-content:flex-end;
       gap:8px;
-      margin-top:2px;
+      margin-top:10px;
     }
 
     #themeModal .modal-box{
@@ -473,7 +521,7 @@
       display:flex;
       align-items:center;
       gap:8px;
-      background:var(--edit-color);
+      background:rgba(0,0,0,0.03);
       padding:8px;
       border-radius:10px;
     }
@@ -494,27 +542,7 @@
       font-size:11px;
       padding:0 6px;
     }
-.theme-modal-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:12px;
-}
 
-.theme-modal-header h3{
-  margin:0;
-}
-
-.theme-close-btn{
-  min-width:auto;
-  width:26px;
-  height:26px;
-  padding:0;
-  border-radius:999px;
-  font-size:12px;
-  line-height:1;
-}
     ::-webkit-scrollbar{
       width:6px;
       height:6px;
@@ -551,41 +579,18 @@
       .theme-button{
         margin-left:0;
       }
-     .image-settings{
-  overflow:visible !important;
-}
-
-.image-settings table{
-  display:table !important;
-  width:100%;
-  overflow:visible !important;
-  flex:none !important;
-  min-height:auto !important;
-}
-
-.image-settings::-webkit-scrollbar,
-.image-settings table::-webkit-scrollbar{
-  display:none;
-}
     }
   </style>
 </head>
 <body>
 
-<div class="file-controls">
-
-  <button onclick="document.getElementById('imageInput').click()">파일 선택</button>
-  <button id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
-  <button id="addGalleryBtn" onclick="addCurrentToGallery()" style="display:none;">갤러리 추가</button>
-
-  <input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
-
-  <div class="right-buttons">
-    <button id="memoBtn">메모</button>
-    <button class="theme-button" onclick="openThemeModal()">테마</button>
+  <div class="file-controls">
+    <button type="button" onclick="document.getElementById('imageInput').click()">파일 선택</button>
+    <button type="button" id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
+    <button type="button" id="addGalleryBtn" onclick="addCurrentToGallery()" style="display:none;">갤러리 추가</button>
+    <input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
+    <button type="button" class="theme-button" onclick="openThemeModal()">테마</button>
   </div>
-
-</div>
 
   <div class="container">
     <div class="image-panel">
@@ -621,17 +626,16 @@
       </div>
 
       <div class="top-row">
-       <div class="card image-settings">
-  <h3>Image Settings</h3>
-  <table>
-    <tr><td>Seed</td><td id="seed"></td></tr>
-    <tr><td>Steps</td><td id="steps"></td></tr>
-    <tr><td>Sampler</td><td id="sampler"></td></tr>
-    <tr><td>CFG</td><td id="cfg"></td></tr>
-    <tr><td>Size</td><td id="size"></td></tr>
-    <tr><td>Prompt Guidance Rescale</td><td id="rescale"></td></tr>
-  </table>
-</div>
+        <div class="card image-settings">
+          <h3>Image Settings</h3>
+          <table>
+            <tr><td>Seed</td><td id="seed"></td></tr>
+            <tr><td>Steps</td><td id="steps"></td></tr>
+            <tr><td>Sampler</td><td id="sampler"></td></tr>
+            <tr><td>CFG</td><td id="cfg"></td></tr>
+            <tr><td>Size</td><td id="size"></td></tr>
+          </table>
+        </div>
 
         <div class="card">
           <h3 style="margin-bottom:10px;">Character</h3>
@@ -690,25 +694,13 @@
       </div>
     </div>
   </div>
-<div id="memoModal" class="modal" style="display:none;">
-  <div class="modal-box">
-    <h3>이미지 메모</h3>
 
-    <textarea id="memoText"
-    style="width:100%;height:160px;border:1px solid #ddd;border-radius:8px;padding:8px;font-family:'Pretendard';resize:none;"></textarea>
-
-    <div class="modal-actions">
-      <button onclick="closeMemoModal()">닫기</button>
-      <button onclick="saveMemo()">저장</button>
-    </div>
-  </div>
-</div>
   <div id="themeModal" class="modal" style="display:none;">
- <div class="modal-box">
-  <div class="theme-modal-header">
-    <h3>테마 설정</h3>
-    <button type="button" class="theme-close-btn" onclick="closeThemeModal()">✕</button>
-  </div>
+    <div class="modal-box">
+      <div class="theme-modal-header">
+        <h3>테마 설정</h3>
+        <button type="button" class="theme-close-btn" onclick="closeThemeModal()">✕</button>
+      </div>
 
       <label class="theme-label">배경색</label>
       <input type="color" id="themeBg">
@@ -737,370 +729,658 @@
       <input type="text" id="themeName" placeholder="테마 이름 입력">
 
       <div class="modal-actions">
-    <button type="button" onclick="resetThemeToDefault()">초기화</button>
-    <button type="button" onclick="saveTheme()">저장</button>
-  </div>
+        <button type="button" onclick="resetThemeToDefault()">초기화</button>
+        <button type="button" onclick="saveTheme()">저장</button>
+      </div>
 
       <div class="theme-list" id="themeList"></div>
     </div>
   </div>
 
- <script>
-const GALLERY_DB_NAME = "nai_metadata_gallery_db";
-const GALLERY_STORE_NAME = "galleryItems";
-const THEMES_STORAGE_KEY = "ggang_saved_themes_v2";
-const ACTIVE_THEME_STORAGE_KEY = "ggang_active_theme_v2";
-
-const DEFAULT_THEME = {
-  name: "Default",
-  bgColor: "#f4f3f0",
-  cardColor: "#ffffff",
-  textColor: "#333333",
-  buttonColor: "#e0b2be",
-  buttonTextColor: "#ffffff",
-  borderColor: "#d3d7c1",
-  editColor: "#eae9e6",
-  buttonShadowColor: "#c98daa"
-};
-
-let currentFile = null;
-let basePrompt = "";
-let negativePrompt = "";
-let currentCharPrompt = "";
-let currentCharUC = "";
-let galleryData = [];
-let currentGalleryItemId = null;
-let pendingGalleryFile = null;
-let savedThemes = JSON.parse(localStorage.getItem(THEMES_STORAGE_KEY) || "[]");
-
-document.getElementById("imageInput").addEventListener("change", function(event){
-  const file = event.target.files[0];
-  if(!file) return;
-  handleImageFile(file);
-});
-
-async function handleImageFile(file){
-  currentFile = file;
-  document.getElementById("saveBtn").style.display = "inline-block";
-  document.getElementById("addGalleryBtn").style.display = "inline-block";
-
-  const reader = new FileReader();
-  reader.onload = function(e){
-    document.getElementById("preview").src = e.target.result;
-    document.getElementById("preview").style.display = "block";
-    document.getElementById("imagePlaceholder").style.display = "none";
-  };
-  reader.readAsDataURL(file);
-
-  try{
-    const data = await exifr.parse(file, true);
-
-    let jsonText = null;
-
-    for(const key in data){
-      if(typeof data[key] === "string" && data[key].includes('"prompt"')){
-        jsonText = data[key];
-      }
-    }
-
-    if(!jsonText){
-      clearMetadataDisplay();
-      return;
-    }
-
-    const nai = JSON.parse(jsonText);
-    applyMetadataToUI(nai);
-
-  }catch(err){
-    console.log(err);
-  }
-}
-
-function applyMetadataToUI(nai){
-  basePrompt = nai.prompt || "";
-  negativePrompt = nai.uc || "";
-
-  document.getElementById("prompt").textContent = basePrompt;
-  document.getElementById("negative").textContent = negativePrompt;
-
-  document.getElementById("seed").textContent = nai.seed || "-";
-  document.getElementById("steps").textContent = nai.steps || "-";
-  document.getElementById("sampler").textContent = nai.sampler || "-";
-  document.getElementById("cfg").textContent = nai.scale || "-";
-
-  document.getElementById("size").textContent =
-    (nai.width && nai.height) ? `${nai.width} x ${nai.height}` : "-";
-
-  document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
-
-  try{
-    currentCharPrompt = nai.v4_prompt.caption.char_captions[0].char_caption || "";
-    currentCharUC = nai.v4_negative_prompt.caption.char_captions[0].char_caption || "";
-  }catch(e){}
-
-  document.getElementById("charPrompt").textContent = currentCharPrompt;
-  document.getElementById("charUC").textContent = currentCharUC;
-
-  resetEditStates();
-}
-
-function resetEditStates(){
-  const editableIds = ["prompt", "negative", "charPrompt", "charUC"];
-  editableIds.forEach(id => {
-    const el = document.getElementById(id);
-    if(el){
-      el.contentEditable = "false";
-    }
-  });
-
-  document.querySelectorAll(".edit-btn").forEach(btn => {
-    btn.textContent = "Edit";
-  });
-}
-
-function toggleEdit(id, btn){
-  const el = document.getElementById(id);
-
-  if(el.contentEditable === "true"){
-    el.contentEditable = "false";
-    btn.textContent = "Edit";
-  }else{
-    el.contentEditable = "true";
-    btn.textContent = "Save";
-    el.focus();
-  }
-}
-
-function clearMetadataDisplay(){
-  document.getElementById("prompt").textContent = "";
-  document.getElementById("negative").textContent = "";
-  document.getElementById("seed").textContent = "-";
-  document.getElementById("steps").textContent = "-";
-  document.getElementById("sampler").textContent = "-";
-  document.getElementById("cfg").textContent = "-";
-  document.getElementById("size").textContent = "-";
-  document.getElementById("rescale").textContent = "-";
-  document.getElementById("charPrompt").textContent = "";
-  document.getElementById("charUC").textContent = "";
-
-  resetEditStates();
-}
-
-function flashButton(buttonId, defaultText){
-  const btn = document.getElementById(buttonId);
-  btn.textContent = "✓";
-  setTimeout(()=>{
-    btn.textContent = defaultText;
-  }, 1200);
-}
-
-function copyBase(){
-  navigator.clipboard.writeText(document.getElementById("prompt").innerText);
-  flashButton("copyPromptBtn", "Copy");
-}
-
-function copyNegative(){
-  navigator.clipboard.writeText(document.getElementById("negative").innerText);
-  flashButton("copyNegativeBtn", "Copy");
-}
-
-function copyCharPrompt(){
-  navigator.clipboard.writeText(document.getElementById("charPrompt").innerText);
-  flashButton("copyCharPromptBtn", "Copy");
-}
-
-function copyCharUC(){
-  navigator.clipboard.writeText(document.getElementById("charUC").innerText);
-  flashButton("copyCharUCBtn", "Copy");
-}
-
-function openSaveModal(){
-  if(!currentFile) return;
-
-  const baseName = currentFile.name.replace(/\.[^/.]+$/, "");
-  document.getElementById("saveFileName").value = baseName;
-  document.getElementById("saveModal").style.display = "flex";
-}
-
-function closeSaveModal(){
-  document.getElementById("saveModal").style.display = "none";
-}
-
-function saveImageAs(){
-  if(!currentFile) return;
-
-  const newName = document.getElementById("saveFileName").value || "image";
-  const ext = currentFile.name.split(".").pop();
-
-  const url = URL.createObjectURL(currentFile);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${newName}.${ext}`;
-  a.click();
-
-  URL.revokeObjectURL(url);
-
-  closeSaveModal();
-}
-
-function openMemoModal(){
-
-  if(!currentGalleryItemId){
-    alert("갤러리 이미지를 먼저 선택하세요.");
-    return;
-  }
-
-  const item = galleryData.find(i=>i.id===currentGalleryItemId);
-
-  document.getElementById("memoText").value = item.memo || "";
-  document.getElementById("memoModal").style.display = "flex";
-}
-
-function closeMemoModal(){
-  document.getElementById("memoModal").style.display = "none";
-}
-
-async function saveMemo(){
-
-  const memoText = document.getElementById("memoText").value;
-
-  const item = galleryData.find(i=>i.id===currentGalleryItemId);
-  if(!item) return;
-
-  item.memo = memoText;
-
-  await saveGalleryToDB();
-
-  closeMemoModal();
-}
-
-async function addToGallery(file, customName){
-
-  const imageDataUrl = await readFileAsDataURL(file);
-  const metadataJson = await extractMetadataJsonFromFile(file);
-
-  const item = {
-    id: crypto.randomUUID(),
-    name: customName || file.name,
-    originalFileName: file.name,
-    imageDataUrl,
-    metadataJson,
-    memo:""
-  };
-
-  galleryData.push(item);
-
-  await saveGalleryToDB();
-
-  renderGallery();
-}
-
-function renderGallery(){
-
-  const gallery = document.getElementById("gallery");
-  gallery.innerHTML="";
-
-  galleryData.forEach(item=>{
-
-    const wrapper=document.createElement("div");
-    wrapper.className="gallery-item";
-
-    const img=document.createElement("img");
-    img.className="gallery-thumb";
-    img.src=item.imageDataUrl;
-
-    img.onclick=()=>loadGalleryItem(item.id);
-
-    const info=document.createElement("div");
-    info.className="gallery-info";
-    info.textContent=item.name;
-
-    wrapper.appendChild(img);
-    wrapper.appendChild(info);
-
-    gallery.appendChild(wrapper);
-
-  });
-
-}
-
-async function loadGalleryItem(id){
-
-  const item = galleryData.find(g => g.id === id);
-  if(!item) return;
-
-  currentGalleryItemId=id;
-
-  document.getElementById("preview").src=item.imageDataUrl;
-  document.getElementById("preview").style.display="block";
-  document.getElementById("imagePlaceholder").style.display="none";
-
-  const nai = JSON.parse(item.metadataJson);
-
-  applyMetadataToUI(nai);
-
-}
-
-function openGalleryDB(){
-  return new Promise((resolve,reject)=>{
-    const request=indexedDB.open(GALLERY_DB_NAME,1);
-
-    request.onupgradeneeded=function(event){
-      const db=event.target.result;
-
-      if(!db.objectStoreNames.contains(GALLERY_STORE_NAME)){
-        db.createObjectStore(GALLERY_STORE_NAME,{keyPath:"id"});
-      }
+  <script>
+    const GALLERY_DB_NAME = "nai_metadata_gallery_db_with_notes_v1";
+    const GALLERY_STORE_NAME = "galleryItems";
+    const THEMES_STORAGE_KEY = "ggang_saved_themes_v2";
+    const ACTIVE_THEME_STORAGE_KEY = "ggang_active_theme_v2";
+
+    const DEFAULT_THEME = {
+      name: "Default",
+      bgColor: "#f4f3f0",
+      cardColor: "#ffffff",
+      textColor: "#333333",
+      buttonColor: "#e0b2be",
+      buttonTextColor: "#ffffff",
+      borderColor: "#d3d7c1",
+      editColor: "#eae9e6",
+      buttonShadowColor: "#c98daa"
     };
 
-    request.onsuccess=()=>resolve(request.result);
-    request.onerror=()=>reject(request.error);
-  });
-}
+    let currentFile = null;
+    let basePrompt = "";
+    let negativePrompt = "";
+    let currentCharPrompt = "";
+    let currentCharUC = "";
+    let galleryData = [];
+    let pendingGalleryFile = null;
+    let savedThemes = JSON.parse(localStorage.getItem(THEMES_STORAGE_KEY) || "[]");
 
-async function saveGalleryToDB(){
+    document.getElementById("imageInput").addEventListener("change", function(event){
+      const file = event.target.files[0];
+      if(!file) return;
+      handleImageFile(file);
+    });
 
-  const db=await openGalleryDB();
+    async function handleImageFile(file){
+      currentFile = file;
+      document.getElementById("saveBtn").style.display = "inline-block";
+      document.getElementById("addGalleryBtn").style.display = "inline-block";
 
-  return new Promise((resolve,reject)=>{
+      const reader = new FileReader();
+      reader.onload = function(e){
+        document.getElementById("preview").src = e.target.result;
+        document.getElementById("preview").style.display = "block";
+        document.getElementById("imagePlaceholder").style.display = "none";
+      };
+      reader.readAsDataURL(file);
 
-    const tx=db.transaction(GALLERY_STORE_NAME,"readwrite");
+      try{
+        const data = await exifr.parse(file, true);
+        let jsonText = null;
 
-    const store=tx.objectStore(GALLERY_STORE_NAME);
+        for(const key in data){
+          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
+            jsonText = data[key];
+          }
+        }
 
-    store.clear();
+        if(!jsonText){
+          clearMetadataDisplay();
+          return;
+        }
 
-    galleryData.forEach(item=>store.put(item));
+        const nai = JSON.parse(jsonText);
+        applyMetadataToUI(nai);
+      }catch(err){
+        console.log(err);
+      }
+    }
 
-    tx.oncomplete=()=>resolve();
+    function applyMetadataToUI(nai){
+      basePrompt = nai.prompt || "";
+      negativePrompt = nai.uc || "";
+      currentCharPrompt = "";
+      currentCharUC = "";
 
-    tx.onerror=()=>reject();
+      document.getElementById("prompt").textContent = basePrompt;
+      document.getElementById("negative").textContent = negativePrompt;
 
-  });
+      document.getElementById("seed").textContent = nai.seed || "-";
+      document.getElementById("steps").textContent = nai.steps || "-";
+      document.getElementById("sampler").textContent = nai.sampler || "-";
+      document.getElementById("cfg").textContent = nai.scale || "-";
+      document.getElementById("size").textContent =
+        (nai.width && nai.height) ? `${nai.width} x ${nai.height}` : "-";
 
-}
+      try{
+        currentCharPrompt = nai.v4_prompt.caption.char_captions[0].char_caption || "";
+        currentCharUC = nai.v4_negative_prompt.caption.char_captions[0].char_caption || "";
+      }catch(e){}
 
-async function loadGalleryFromDB(){
+      document.getElementById("charPrompt").textContent = currentCharPrompt;
+      document.getElementById("charUC").textContent = currentCharUC;
 
-  const db=await openGalleryDB();
+      resetEditStates();
+    }
 
-  const tx=db.transaction(GALLERY_STORE_NAME,"readonly");
+    function resetEditStates(){
+      const editableIds = ["prompt", "negative", "charPrompt", "charUC"];
+      editableIds.forEach(id => {
+        const el = document.getElementById(id);
+        if(el){
+          el.contentEditable = "false";
+        }
+      });
 
-  const store=tx.objectStore(GALLERY_STORE_NAME);
+      document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.textContent = "Edit";
+      });
+    }
 
-  const request=store.getAll();
+    function toggleEdit(id, btn){
+      const el = document.getElementById(id);
+      if(!el) return;
 
-  request.onsuccess=function(){
+      if(el.contentEditable === "true"){
+        el.contentEditable = "false";
+        btn.textContent = "Edit";
+      }else{
+        el.contentEditable = "true";
+        btn.textContent = "Save";
+        el.focus();
 
-    galleryData=request.result||[];
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
 
-    renderGallery();
+    function clearMetadataDisplay(){
+      basePrompt = "";
+      negativePrompt = "";
+      currentCharPrompt = "";
+      currentCharUC = "";
 
-  };
+      document.getElementById("prompt").textContent = "";
+      document.getElementById("negative").textContent = "";
+      document.getElementById("seed").textContent = "-";
+      document.getElementById("steps").textContent = "-";
+      document.getElementById("sampler").textContent = "-";
+      document.getElementById("cfg").textContent = "-";
+      document.getElementById("size").textContent = "-";
+      document.getElementById("charPrompt").textContent = "";
+      document.getElementById("charUC").textContent = "";
 
-}
+      resetEditStates();
+    }
 
-loadGalleryFromDB();
-document.getElementById("memoBtn").onclick = openMemoModal;
-</script>
+    function flashButton(buttonId, defaultText){
+      const btn = document.getElementById(buttonId);
+      btn.textContent = "✓";
+      setTimeout(()=>{
+        btn.textContent = defaultText;
+      }, 1200);
+    }
+
+    function copyBase(){
+      const text = document.getElementById("prompt").innerText;
+      navigator.clipboard.writeText(text);
+      flashButton("copyPromptBtn", "Copy");
+    }
+
+    function copyNegative(){
+      const text = document.getElementById("negative").innerText;
+      navigator.clipboard.writeText(text);
+      flashButton("copyNegativeBtn", "Copy");
+    }
+
+    function copyCharPrompt(){
+      const text = document.getElementById("charPrompt").innerText;
+      navigator.clipboard.writeText(text);
+      flashButton("copyCharPromptBtn", "Copy");
+    }
+
+    function copyCharUC(){
+      const text = document.getElementById("charUC").innerText;
+      navigator.clipboard.writeText(text);
+      flashButton("copyCharUCBtn", "Copy");
+    }
+
+    function openSaveModal(){
+      if(!currentFile) return;
+
+      const baseName = currentFile.name.replace(/\.[^/.]+$/, "");
+      document.getElementById("saveFileName").value = baseName;
+      document.getElementById("saveModal").style.display = "flex";
+    }
+
+    function closeSaveModal(){
+      document.getElementById("saveModal").style.display = "none";
+    }
+
+    function saveImageAs(){
+      if(!currentFile) return;
+
+      let newName = document.getElementById("saveFileName").value.trim();
+      if(!newName){
+        newName = "image";
+      }
+
+      const ext = currentFile.name.split(".").pop() || "png";
+      const finalName = `${newName}.${ext}`;
+
+      const url = URL.createObjectURL(currentFile);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = finalName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      closeSaveModal();
+    }
+
+    function addCurrentToGallery(){
+      if(!currentFile) return;
+
+      pendingGalleryFile = currentFile;
+      const baseName = currentFile.name.replace(/\.[^/.]+$/, "");
+      document.getElementById("galleryItemName").value = baseName;
+      document.getElementById("galleryModal").style.display = "flex";
+    }
+
+    function closeGalleryModal(){
+      document.getElementById("galleryModal").style.display = "none";
+      pendingGalleryFile = null;
+    }
+
+    async function confirmAddToGallery(){
+      if(!pendingGalleryFile) return;
+
+      let customName = document.getElementById("galleryItemName").value.trim();
+      if(!customName){
+        customName = pendingGalleryFile.name.replace(/\.[^/.]+$/, "");
+      }
+
+      await addToGallery(pendingGalleryFile, customName);
+      document.getElementById("galleryModal").style.display = "none";
+      pendingGalleryFile = null;
+    }
+
+    async function addToGallery(file, customName){
+      const imageDataUrl = await readFileAsDataURL(file);
+      const metadataJson = await extractMetadataJsonFromFile(file);
+
+      if(!metadataJson) return;
+
+      const item = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        name: customName || file.name,
+        originalFileName: file.name,
+        imageDataUrl,
+        metadataJson,
+        note: ""
+      };
+
+      galleryData.push(item);
+      await saveGalleryToDB();
+      renderGallery();
+    }
+
+    function readFileAsDataURL(file){
+      return new Promise((resolve, reject)=>{
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function extractMetadataJsonFromFile(file){
+      try{
+        const data = await exifr.parse(file, true);
+
+        for(const key in data){
+          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
+            return data[key];
+          }
+        }
+      }catch(err){
+        console.log(err);
+      }
+      return null;
+    }
+
+    function renderGallery(){
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "";
+
+      galleryData.forEach((item)=>{
+        const wrapper = document.createElement("div");
+        wrapper.className = "gallery-item";
+
+        const img = document.createElement("img");
+        img.className = "gallery-thumb";
+        img.src = item.imageDataUrl;
+        img.alt = item.name || "gallery image";
+        img.onclick = () => loadGalleryItem(item.id);
+
+        const info = document.createElement("div");
+        info.className = "gallery-info";
+        info.textContent = item.name || "image";
+
+        const note = document.createElement("textarea");
+        note.className = "gallery-note";
+        note.placeholder = "메모";
+        note.value = item.note || "";
+        note.onclick = (e) => e.stopPropagation();
+
+        const noteActions = document.createElement("div");
+        noteActions.className = "gallery-note-actions";
+
+        const noteSaveBtn = document.createElement("button");
+        noteSaveBtn.type = "button";
+        noteSaveBtn.className = "gallery-note-btn";
+        noteSaveBtn.textContent = "저장";
+        noteSaveBtn.onclick = async (e) => {
+          e.stopPropagation();
+          await saveGalleryNote(item.id, note.value);
+          noteSaveBtn.textContent = "✓";
+          setTimeout(()=>{ noteSaveBtn.textContent = "저장"; }, 1000);
+        };
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "gallery-delete";
+        deleteBtn.type = "button";
+        deleteBtn.textContent = "×";
+        deleteBtn.onclick = async (e) => {
+          e.stopPropagation();
+          await deleteGalleryItem(item.id);
+        };
+
+        noteActions.appendChild(noteSaveBtn);
+        wrapper.appendChild(img);
+        wrapper.appendChild(deleteBtn);
+        wrapper.appendChild(info);
+        wrapper.appendChild(음표);
+        wrapper.appendChild(noteActions);
+        gallery.appendChild(wrapper);
+      });
+    }
+
+    async function saveGalleryNote(id, noteText){
+      const item = galleryData.find(g => g.id === id);
+      if(!item) return;
+      item.note = noteText;
+      await saveGalleryToDB();
+    }
+
+    async function loadGalleryItem(id){
+      const item = galleryData.find(g => g.id === id);
+      if(!item) return;
+
+      document.getElementById("preview").src = item.imageDataUrl;
+      document.getElementById("preview").style.display = "block";
+      document.getElementById("imagePlaceholder").style.display = "none";
+
+      document.getElementById("saveBtn").style.display = "inline-block";
+      document.getElementById("addGalleryBtn").style.display = "none";
+
+      try{
+        const nai = JSON.parse(item.metadataJson);
+        applyMetadataToUI(nai);
+      }catch(err){
+        console.log(err);
+      }
+
+      try{
+        currentFile = dataURLToFile(
+          item.imageDataUrl,
+          item.originalFileName || item.name || "image.png"
+        );
+      }catch(err){
+        console.log(err);
+      }
+    }
+
+    function dataURLToFile(dataUrl, filename){
+      const arr = dataUrl.split(",");
+      const mimeMatch = arr[0].match(/:(.*?);/);
+      const mime = mimeMatch ? mimeMatch[1] : "image/png";
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+
+      while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+
+      return new File([u8arr], filename, { type: mime });
+    }
+
+    async function deleteGalleryItem(id){
+      galleryData = galleryData.filter(item => item.id !== id);
+      await saveGalleryToDB();
+      renderGallery();
+    }
+
+    function openGalleryDB(){
+      return new Promise((resolve, reject)=>{
+        const request = indexedDB.open(GALLERY_DB_NAME, 1);
+
+        request.onupgradeneeded = function(event){
+          const db = event.target.result;
+          if(!db.objectStoreNames.contains(GALLERY_STORE_NAME)){
+            db.createObjectStore(GALLERY_STORE_NAME, { keyPath: "id" });
+          }
+        };
+
+        request.onsuccess = function(){
+          resolve(request.result);
+        };
+
+        request.onerror = function(){
+          reject(request.error);
+        };
+      });
+    }
+
+    async function saveGalleryToDB(){
+      const db = await openGalleryDB();
+
+      return new Promise((resolve, reject)=>{
+        const tx = db.transaction(GALLERY_STORE_NAME, "readwrite");
+        const store = tx.objectStore(GALLERY_STORE_NAME);
+
+        store.clear();
+        galleryData.forEach(item => {
+          store.put(item);
+        });
+
+        tx.oncomplete = function(){
+          resolve();
+        };
+
+        tx.onerror = function(){
+          reject(tx.error);
+        };
+      });
+    }
+
+    async function loadGalleryFromDB(){
+      const db = await openGalleryDB();
+
+      return new Promise((resolve, reject)=>{
+        const tx = db.transaction(GALLERY_STORE_NAME, "readonly");
+        const store = tx.objectStore(GALLERY_STORE_NAME);
+        const request = store.getAll();
+
+        request.onsuccess = function(){
+          galleryData = Array.isArray(request.result) ? request.result : [];
+          galleryData = galleryData.map(item => ({ ...item, note: item.note || "" }));
+          renderGallery();
+          resolve();
+        };
+
+        request.onerror = function(){
+          reject(request.error);
+        };
+      });
+    }
+
+    function openThemeModal(){
+      fillThemeInputsFromCurrent();
+      renderThemeList();
+      document.getElementById("themeModal").style.display = "flex";
+    }
+
+    function closeThemeModal(){
+      document.getElementById("themeModal").style.display = "none";
+    }
+
+    function fillThemeInputsFromCurrent(){
+      const style = getComputedStyle(document.documentElement);
+      document.getElementById("themeBg").value = rgbToHex(style.getPropertyValue("--bg-color").trim());
+      document.getElementById("themeCard").value = rgbToHex(style.getPropertyValue("--card-color").trim());
+      document.getElementById("themeText").value = rgbToHex(style.getPropertyValue("--text-color").trim());
+      document.getElementById("themeButton").value = rgbToHex(style.getPropertyValue("--button-color").trim());
+      document.getElementById("themeButtonText").value = rgbToHex(style.getPropertyValue("--button-text-color").trim());
+      document.getElementById("themeBorder").value = rgbToHex(style.getPropertyValue("--border-color").trim());
+      document.getElementById("themeEdit").value = rgbToHex(style.getPropertyValue("--edit-color").trim());
+      document.getElementById("themeButtonShadow").value = rgbToHex(style.getPropertyValue("--button-shadow-color").trim());
+    }
+
+    function getThemeFromInputs(){
+      return {
+        name: document.getElementById("themeName").value.trim() || "새 테마",
+        bgColor: document.getElementById("themeBg").value,
+        cardColor: document.getElementById("themeCard").value,
+        textColor: document.getElementById("themeText").value,
+        buttonColor: document.getElementById("themeButton").value,
+        buttonTextColor: document.getElementById("themeButtonText").value,
+        borderColor: document.getElementById("themeBorder").value,
+        editColor: document.getElementById("themeEdit").value,
+        buttonShadowColor: document.getElementById("themeButtonShadow").value
+      };
+    }
+
+    function hexToRgba(hex, alpha){
+      const clean = hex.replace("#", "");
+      const bigint = parseInt(clean, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    function applyTheme(theme){
+      document.documentElement.style.setProperty("--bg-color", theme.bgColor);
+      document.documentElement.style.setProperty("--card-color", theme.cardColor);
+      document.documentElement.style.setProperty("--text-color", theme.textColor);
+      document.documentElement.style.setProperty("--button-color", theme.buttonColor);
+      document.documentElement.style.setProperty("--button-text-color", theme.buttonTextColor);
+      document.documentElement.style.setProperty("--border-color", theme.borderColor);
+      document.documentElement.style.setProperty("--edit-color", theme.editColor);
+      document.documentElement.style.setProperty("--button-shadow-color", theme.buttonShadowColor);
+      document.documentElement.style.setProperty("--button-shadow-rgba", hexToRgba(theme.buttonShadowColor, 0.35));
+
+      localStorage.setItem(ACTIVE_THEME_STORAGE_KEY, JSON.stringify(theme));
+    }
+
+    function saveTheme(){
+      const theme = getThemeFromInputs();
+
+      const existingIndex = savedThemes.findIndex(t => t.name === theme.name);
+      if(existingIndex >= 0){
+        savedThemes[existingIndex] = theme;
+      }else{
+        savedThemes.push(theme);
+      }
+
+      localStorage.setItem(THEMES_STORAGE_KEY, JSON.stringify(savedThemes));
+      applyTheme(theme);
+      renderThemeList();
+      document.getElementById("themeName").value = "";
+    }
+
+    function applySavedThemeByName(name){
+      const theme = savedThemes.find(t => t.name === name);
+      if(!theme) return;
+      applyTheme(theme);
+      fillThemeInputsFromCurrent();
+    }
+
+    function deleteSavedTheme(name){
+      savedThemes = savedThemes.filter(t => t.name !== name);
+      localStorage.setItem(THEMES_STORAGE_KEY, JSON.stringify(savedThemes));
+      renderThemeList();
+    }
+
+    function renderThemeList(){
+      const wrap = document.getElementById("themeList");
+      wrap.innerHTML = "";
+
+      if(savedThemes.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "theme-item";
+        empty.innerHTML = '<div class="theme-name">저장된 테마가 없습니다.</div>';
+        wrap.appendChild(empty);
+        return;
+      }
+
+      savedThemes.forEach(theme => {
+        const item = document.createElement("div");
+        item.className = "theme-item";
+
+        const name = document.createElement("div");
+        name.className = "theme-name";
+        name.textContent = theme.name;
+
+        const applyBtn = document.createElement("button");
+        applyBtn.type = "button";
+        applyBtn.className = "theme-small-btn";
+        applyBtn.textContent = "적용";
+        applyBtn.onclick = () => applySavedThemeByName(theme.name);
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "theme-small-btn";
+        delBtn.textContent = "삭제";
+        delBtn.onclick = () => deleteSavedTheme(theme.name);
+
+        item.appendChild(name);
+        item.appendChild(applyBtn);
+        item.appendChild(delBtn);
+        wrap.appendChild(item);
+      });
+    }
+
+    function resetThemeToDefault(){
+      applyTheme(DEFAULT_THEME);
+      fillThemeInputsFromCurrent();
+    }
+
+    function loadActiveTheme(){
+      const saved = localStorage.getItem(ACTIVE_THEME_STORAGE_KEY);
+      if(!saved) return;
+
+      try{
+        const theme = JSON.parse(saved);
+        applyTheme(theme);
+      }catch(err){
+        console.log(err);
+      }
+    }
+
+    function rgbToHex(color){
+      if(!color) return "#000000";
+      if(color.startsWith("#")) return color;
+
+      const result = color.match(/\d+/g);
+      if(!result) return "#000000";
+
+      return "#" + result.slice(0,3).map(x => {
+        const hex = parseInt(x, 10).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      }).join("");
+    }
+
+    const dropZone = document.getElementById("dropZone");
+
+    dropZone.addEventListener("dragover", (e)=>{
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", ()=>{
+      dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", (e)=>{
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
+
+      const file = e.dataTransfer.files[0];
+      if(!file) return;
+
+      handleImageFile(file);
+    });
+
+    loadActiveTheme();
+    loadGalleryFromDB();
+  </script>
+</body>
+</html>
