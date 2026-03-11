@@ -135,7 +135,7 @@
       background:var(--card-color);
       border-radius:20px;
       padding:5px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      box-shadow:0 4px 12px color-mix(in srgb, var(--button-shadow-color) 40%, transparent);
       height:605px;
       display:flex;
       align-items:center;
@@ -186,7 +186,7 @@
       background:var(--card-color);
       border-radius:16px;
       padding:12px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.08);
+      box-shadow:0 4px 10px color-mix(in srgb, var(--button-shadow-color) 40%, transparent);
       min-width:0;
       height:190px;
       display:flex;
@@ -469,7 +469,7 @@
       display:flex;
       align-items:center;
       gap:8px;
-      background:rgba(0,0,0,0.03);
+      background:var( --edit-color);
       padding:8px;
       border-radius:10px;
     }
@@ -708,7 +708,7 @@
       <label class="theme-label">Edit 배경색</label>
       <input type="color" id="themeEdit">
 
-      <label class="theme-label">버튼 그림자색</label>
+      <label class="theme-label">버튼&카드 그림자색</label>
       <input type="color" id="themeButtonShadow">
 
       <input type="text" id="themeName" placeholder="테마 이름 입력">
