@@ -26,7 +26,14 @@
       --image-drag-border:#d3d7c1;
       --placeholder-color:#9b8d91;
       --button-shadow-color:#c98daa;
-      --button-shadow-rgba:rgba(201,141,170,0.35);
+      --button-shadow-rgba:rgba(201,141,170,0.25);
+    }
+
+    @font-face {
+      font-family: 'Cafe24Surround';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24Ssurround.woff') format('woff');
+      font-weight: normal;
+      font-display: swap;
     }
 
     @font-face {
@@ -50,8 +57,8 @@
       font-display: swap;
     }
 
-    *{
-      cursor:url('https://cdn.cursors-4u.net/previews/tiny-star-5c7f5702-32.webp') 32 32, auto !important;
+    * {
+      cursor: url('https://cdn.cursors-4u.net/previews/tiny-star-5c7f5702-32.webp') 32 32, auto !important;
     }
 
     body{
@@ -84,7 +91,7 @@
       color:var(--button-text-color);
       border:none;
       border-radius:8px;
-      padding:6px 8px;
+      padding:6px 12px;
       font-size:12px;
       cursor:pointer;
       transition:all 0.15s ease;
@@ -92,7 +99,7 @@
       height:30px;
       line-height:1;
       flex-shrink:0;
-      font-family:'TMoneyDungunbaram', sans-serif;
+      font-family:'Pretendard', sans-serif;
     }
 
     button:hover{
@@ -238,17 +245,19 @@
       width:100%;
       border-collapse:collapse;
       font-size:13px;
+      display:block;
+      overflow-y:auto;
+      flex:1;
+      min-height:0;
       color:var(--text-color);
+       padding-top:3px;
     }
 
     td{
-      padding:6px 4px;
+      padding:6px 5px;
       border-bottom:1px solid #eee;
       vertical-align:top;
-    }
-
-    .image-settings tr:last-child td{
-      border-bottom:none;
+     
     }
 
     td:first-child{
@@ -256,7 +265,7 @@
       color:var(--text-color);
       opacity:0.8;
     }
-
+    .image-settings tr:last-child td{border-bottom: none;}
     .char-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -323,8 +332,8 @@
 
     .gallery-grid{
       display:grid;
-      grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
-      gap:14px;
+      grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+      gap:10px;
     }
 
     .gallery-item{
@@ -335,12 +344,10 @@
       box-shadow:0 2px 8px var(--button-shadow-rgba);
       transition:transform 0.15s ease;
       border:2px solid var(--border-color);
-      display:flex;
-      flex-direction:column;
     }
 
     .gallery-item:hover{
-      transform:scale(1.02);
+      transform:scale(1.03);
     }
 
     .gallery-thumb{
@@ -361,68 +368,31 @@
       text-overflow:ellipsis;
     }
 
-    .gallery-note{
-      width:100%;
-      min-height:64px;
-      max-height:120px;
-      resize:vertical;
-      border:none;
-      border-top:1px solid rgba(0,0,0,0.08);
-      padding:8px;
-      font-size:12px;
-      font-family:'Pretendard', sans-serif;
-      color:var(--text-color);
-      background:var(--card-color);
-      outline:none;
-    }
-
-    .gallery-note::placeholder{
-      color:#999;
-    }
-
-    .gallery-note-actions{
-      display:flex;
-      justify-content:flex-end;
-      gap:6px;
-      padding:8px;
-      padding-top:0;
-      background:var(--card-color);
-    }
-
-    .gallery-note-btn{
-      min-width:auto;
-      width:52px;
-      height:24px;
-      font-size:11px;
-      padding:0 6px;
-    }
-
     .gallery-delete{
       position:absolute;
       top:8px;
       right:8px;
       min-width:auto;
-      width:24px;
-      height:24px;
+      width:15px;
+      height:15px;
       border-radius:999px;
       padding:0;
       font-size:12px;
       line-height:1;
-      background:rgba(0,0,0,0.65);
+      background:var(--button-color);
       color:#fff;
       font-family:'Pretendard', sans-serif;
-      z-index:2;
     }
 
     .gallery-delete:hover{
-      background:rgba(0,0,0,0.8);
+      background:var(--button-color);
       transform:none;
     }
 
     .modal{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,0.35);
+      background:var(--button-shadow-rgba);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -434,9 +404,9 @@
       width:340px;
       max-height:min(80vh, 700px);
       background:var(--card-color);
-      border-radius:16px;
+      border-radius:10px;
       padding:20px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.18);
+      box-shadow:0 10px 30px var(--button-shadow-rgba);
       border:2px solid var(--border-color);
       color:var(--text-color);
     }
@@ -469,28 +439,6 @@
       margin-bottom:12px;
     }
 
-    .theme-modal-header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:12px;
-    }
-
-    .theme-modal-header h3{
-      margin:0;
-    }
-
-    .theme-close-btn{
-      min-width:auto;
-      width:26px;
-      height:26px;
-      padding:0;
-      border-radius:999px;
-      font-size:12px;
-      line-height:1;
-    }
-
     .theme-label{
       display:block;
       margin-bottom:6px;
@@ -502,7 +450,7 @@
       display:flex;
       justify-content:flex-end;
       gap:8px;
-      margin-top:10px;
+      margin-top:2px;
     }
 
     #themeModal .modal-box{
@@ -521,7 +469,7 @@
       display:flex;
       align-items:center;
       gap:8px;
-      background:rgba(0,0,0,0.03);
+      background:var(--edit-color);
       padding:8px;
       border-radius:10px;
     }
@@ -542,7 +490,27 @@
       font-size:11px;
       padding:0 6px;
     }
+.theme-modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
 
+.theme-modal-header h3{
+  margin:0;
+}
+
+.theme-close-btn{
+  min-width:auto;
+  width:26px;
+  height:26px;
+  padding:0;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1;
+}
     ::-webkit-scrollbar{
       width:6px;
       height:6px;
@@ -579,6 +547,22 @@
       .theme-button{
         margin-left:0;
       }
+     .image-settings{
+  overflow:visible !important;
+}
+
+.image-settings table{
+  display:table !important;
+  width:100%;
+  overflow:visible !important;
+  flex:none !important;
+  min-height:auto !important;
+}
+
+.image-settings::-webkit-scrollbar,
+.image-settings table::-webkit-scrollbar{
+  display:none;
+}
     }
   </style>
 </head>
@@ -626,16 +610,17 @@
       </div>
 
       <div class="top-row">
-        <div class="card image-settings">
-          <h3>Image Settings</h3>
-          <table>
-            <tr><td>Seed</td><td id="seed"></td></tr>
-            <tr><td>Steps</td><td id="steps"></td></tr>
-            <tr><td>Sampler</td><td id="sampler"></td></tr>
-            <tr><td>CFG</td><td id="cfg"></td></tr>
-            <tr><td>Size</td><td id="size"></td></tr>
-          </table>
-        </div>
+       <div class="card image-settings">
+  <h3>Image Settings</h3>
+  <table>
+    <tr><td>Seed</td><td id="seed"></td></tr>
+    <tr><td>Steps</td><td id="steps"></td></tr>
+    <tr><td>Sampler</td><td id="sampler"></td></tr>
+    <tr><td>CFG</td><td id="cfg"></td></tr>
+    <tr><td>Size</td><td id="size"></td></tr>
+    <tr><td>Prompt Guidance Rescale</td><td id="rescale"></td></tr>
+  </table>
+</div>
 
         <div class="card">
           <h3 style="margin-bottom:10px;">Character</h3>
@@ -696,11 +681,11 @@
   </div>
 
   <div id="themeModal" class="modal" style="display:none;">
-    <div class="modal-box">
-      <div class="theme-modal-header">
-        <h3>테마 설정</h3>
-        <button type="button" class="theme-close-btn" onclick="closeThemeModal()">✕</button>
-      </div>
+ <div class="modal-box">
+  <div class="theme-modal-header">
+    <h3>테마 설정</h3>
+    <button type="button" class="theme-close-btn" onclick="closeThemeModal()">✕</button>
+  </div>
 
       <label class="theme-label">배경색</label>
       <input type="color" id="themeBg">
@@ -729,16 +714,16 @@
       <input type="text" id="themeName" placeholder="테마 이름 입력">
 
       <div class="modal-actions">
-        <button type="button" onclick="resetThemeToDefault()">초기화</button>
-        <button type="button" onclick="saveTheme()">저장</button>
-      </div>
+    <button type="button" onclick="resetThemeToDefault()">초기화</button>
+    <button type="button" onclick="saveTheme()">저장</button>
+  </div>
 
       <div class="theme-list" id="themeList"></div>
     </div>
   </div>
 
   <script>
-    const GALLERY_DB_NAME = "nai_metadata_gallery_db_with_notes_v1";
+    const GALLERY_DB_NAME = "nai_metadata_gallery_db";
     const GALLERY_STORE_NAME = "galleryItems";
     const THEMES_STORAGE_KEY = "ggang_saved_themes_v2";
     const ACTIVE_THEME_STORAGE_KEY = "ggang_active_theme_v2";
@@ -785,6 +770,7 @@
 
       try{
         const data = await exifr.parse(file, true);
+
         let jsonText = null;
 
         for(const key in data){
@@ -800,6 +786,7 @@
 
         const nai = JSON.parse(jsonText);
         applyMetadataToUI(nai);
+
       }catch(err){
         console.log(err);
       }
@@ -815,12 +802,13 @@
       document.getElementById("negative").textContent = negativePrompt;
 
       document.getElementById("seed").textContent = nai.seed || "-";
-      document.getElementById("steps").textContent = nai.steps || "-";
-      document.getElementById("sampler").textContent = nai.sampler || "-";
-      document.getElementById("cfg").textContent = nai.scale || "-";
-      document.getElementById("size").textContent =
-        (nai.width && nai.height) ? `${nai.width} x ${nai.height}` : "-";
+document.getElementById("steps").textContent = nai.steps || "-";
+document.getElementById("sampler").textContent = nai.sampler || "-";
+document.getElementById("cfg").textContent = nai.scale || "-";
+document.getElementById("size").textContent =
+  (nai.width && nai.height) ? `${nai.width} x ${nai.height}` : "-";
 
+document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
       try{
         currentCharPrompt = nai.v4_prompt.caption.char_captions[0].char_caption || "";
         currentCharUC = nai.v4_negative_prompt.caption.char_captions[0].char_caption || "";
@@ -882,7 +870,7 @@
       document.getElementById("size").textContent = "-";
       document.getElementById("charPrompt").textContent = "";
       document.getElementById("charUC").textContent = "";
-
+document.getElementById("rescale").textContent = "-";
       resetEditStates();
     }
 
@@ -991,8 +979,7 @@
         name: customName || file.name,
         originalFileName: file.name,
         imageDataUrl,
-        metadataJson,
-        note: ""
+        metadataJson
       };
 
       galleryData.push(item);
@@ -1042,26 +1029,6 @@
         info.className = "gallery-info";
         info.textContent = item.name || "image";
 
-        const note = document.createElement("textarea");
-        note.className = "gallery-note";
-        note.placeholder = "메모";
-        note.value = item.note || "";
-        note.onclick = (e) => e.stopPropagation();
-
-        const noteActions = document.createElement("div");
-        noteActions.className = "gallery-note-actions";
-
-        const noteSaveBtn = document.createElement("button");
-        noteSaveBtn.type = "button";
-        noteSaveBtn.className = "gallery-note-btn";
-        noteSaveBtn.textContent = "저장";
-        noteSaveBtn.onclick = async (e) => {
-          e.stopPropagation();
-          await saveGalleryNote(item.id, note.value);
-          noteSaveBtn.textContent = "✓";
-          setTimeout(()=>{ noteSaveBtn.textContent = "저장"; }, 1000);
-        };
-
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "gallery-delete";
         deleteBtn.type = "button";
@@ -1071,21 +1038,11 @@
           await deleteGalleryItem(item.id);
         };
 
-        noteActions.appendChild(noteSaveBtn);
         wrapper.appendChild(img);
         wrapper.appendChild(deleteBtn);
         wrapper.appendChild(info);
-        wrapper.appendChild(음표);
-        wrapper.appendChild(noteActions);
         gallery.appendChild(wrapper);
       });
-    }
-
-    async function saveGalleryNote(id, noteText){
-      const item = galleryData.find(g => g.id === id);
-      if(!item) return;
-      item.note = noteText;
-      await saveGalleryToDB();
     }
 
     async function loadGalleryItem(id){
@@ -1190,7 +1147,6 @@
 
         request.onsuccess = function(){
           galleryData = Array.isArray(request.result) ? request.result : [];
-          galleryData = galleryData.map(item => ({ ...item, note: item.note || "" }));
           renderGallery();
           resolve();
         };
