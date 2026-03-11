@@ -572,7 +572,7 @@
 </head>
 <body>
 
- <div class="file-controls">
+<div class="file-controls">
 
   <button onclick="document.getElementById('imageInput').click()">파일 선택</button>
   <button id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
@@ -581,8 +581,8 @@
   <input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
 
   <div class="right-buttons">
-    <button onclick="openMemoModal()">메모</button>
-    <button onclick="openThemeModal()">테마</button>
+    <button id="memoBtn">메모</button>
+    <button class="theme-button" onclick="openThemeModal()">테마</button>
   </div>
 
 </div>
@@ -1102,5 +1102,5 @@ async function loadGalleryFromDB(){
 }
 
 loadGalleryFromDB();
-
+document.getElementById("memoBtn").onclick = openMemoModal;
 </script>
