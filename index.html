@@ -135,7 +135,7 @@
       background:var(--card-color);
       border-radius:20px;
       padding:5px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      box-shadow:0 4px 12px var(--button-shadow-rgba);
       height:605px;
       display:flex;
       align-items:center;
@@ -186,7 +186,7 @@
       background:var(--card-color);
       border-radius:16px;
       padding:12px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.08);
+      box-shadow:0 4px 10px var(--button-shadow-rgba);
       min-width:0;
       height:190px;
       display:flex;
@@ -341,7 +341,7 @@
       background:var(--card-color);
       border-radius:14px;
       overflow:hidden;
-      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+      box-shadow:0 2px 8px var(--button-shadow-rgba);
       transition:transform 0.15s ease;
       border:2px solid var(--border-color);
     }
@@ -392,7 +392,7 @@
     .modal{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,0.35);
+      background:var(--button-shadow-rgba);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -406,7 +406,7 @@
       background:var(--card-color);
       border-radius:10px;
       padding:20px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.18);
+      box-shadow:0 10px 30px var(--button-shadow-rgba);
       border:2px solid var(--border-color);
       color:var(--text-color);
     }
@@ -469,7 +469,7 @@
       display:flex;
       align-items:center;
       gap:8px;
-      background:rgba(0,0,0,0.03);
+      background:var(--button-shadow-rgba);
       padding:8px;
       border-radius:10px;
     }
@@ -708,7 +708,7 @@
       <label class="theme-label">Edit 배경색</label>
       <input type="color" id="themeEdit">
 
-      <label class="theme-label">버튼 그림자색</label>
+      <label class="theme-label">버튼&카드 그림자색</label>
       <input type="color" id="themeButtonShadow">
 
       <input type="text" id="themeName" placeholder="테마 이름 입력">
