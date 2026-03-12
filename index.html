@@ -784,745 +784,440 @@ border: 0.7px solid #808080;
     </div>
   </div>
 
-  <script>
-    const GALLERY_DB_NAME = "nai_metadata_gallery_db";
-    const GALLERY_STORE_NAME = "galleryItems";
-    const THEMES_STORAGE_KEY = "ggang_saved_themes_v2";
-    const ACTIVE_THEME_STORAGE_KEY = "ggang_active_theme_v2";
-    const CUSTOM_THEME_STYLE_ID = "ggang_custom_theme_style";
-
-    const DEFAULT_THEME = {
-      name: "Default",
-      bgColor: "#f4f3f0",
-      cardColor: "#ffffff",
-      textColor: "#333333",
-      buttonColor: "#e0b2be",
-      buttonTextColor: "#ffffff",
-      borderColor: "#d3d7c1",
-      editColor: "#eae9e6",
-      buttonShadowColor: "#c98daa",
-      customCss: ""
-    };
-
-    let currentFile = null;
-    let basePrompt = "";
-    let negativePrompt = "";
-    let currentCharPrompt = "";
-    let currentCharUC = "";
-    let currentMetadata = null;
-
-    const DEFAULT_NEGATIVE_TERMS = new Set([
-      "nsfw",
-      "lowres",
-      "artistic error",
-      "film grain",
-      "scan artifacts",
-      "worst quality",
-      "bad quality",
-      "jpeg artifacts",
-      "very displeasing",
-      "chromatic aberration",
-      "dithering",
-      "halftone",
-      "screentone",
-      "multiple views",
-      "logo",
-      "too many watermarks",
-      "negative space",
-      "blank page"
-    ]);
-    let currentGalleryItemId = null;
-    let galleryData = [];
-    let pendingGalleryFile = null;
-    let savedThemes = JSON.parse(localStorage.getItem(THEMES_STORAGE_KEY) || "[]");
-    let activeCustomCss = "";
-
-    document.getElementById("imageInput").addEventListener("change", function(event){
-      const file = event.target.files[0];
-      if(!file) return;
-      handleImageFile(file);
-    });
-
-    async function handleImageFile(file){
-      currentFile = file;
-      currentGalleryItemId = null;
-      document.getElementById("saveBtn").style.display = "inline-block";
-      document.getElementById("addGalleryBtn").style.display = "inline-block";
-      document.getElementById("memoBtn").style.display = "none";
-
-      const reader = new FileReader();
-      reader.onload = function(e){
-        document.getElementById("preview").src = e.target.result;
-        document.getElementById("preview").style.display = "block";
-        document.getElementById("imagePlaceholder").style.display = "none";
-      };
-      reader.readAsDataURL(file);
-
-      try{
-        const data = await exifr.parse(file, true);
-
-        let jsonText = data.Comment || data.comment || null;
-
-        for(const key in data){
-          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
-            jsonText = data[key];
-          }
-        }
-
-        if(!jsonText){
-          clearMetadataDisplay();
-          return;
-        }
-
-        const nai = JSON.parse(jsonText);
-        applyMetadataToUI(nai);
-
-      }catch(err){
-        console.log(err);
-      }
-    }
-
-    function applyMetadataToUI(nai){
-      currentMetadata = nai ? JSON.parse(JSON.stringify(nai)) : null;
-      basePrompt = nai.prompt || "";
-      negativePrompt = sanitizeNegativePrompt(nai.uc || "");
-      currentCharPrompt = "";
-      currentCharUC = "";
-
-      document.getElementById("prompt").textContent = basePrompt;
-      document.getElementById("negative").textContent = negativePrompt;
-
-      document.getElementById("seed").textContent = nai.seed || "-";
-document.getElementById("steps").textContent = nai.steps || "-";
-document.getElementById("sampler").textContent = nai.sampler || "-";
-document.getElementById("cfg").textContent = nai.scale || "-";
-document.getElementById("size").textContent =
-  (nai.width && nai.height) ? `${nai.width} x ${nai.height}` : "-";
-
-document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
-      try{
-        currentCharPrompt = nai.v4_prompt.caption.char_captions[0].char_caption || "";
-        currentCharUC = nai.v4_negative_prompt.caption.char_captions[0].char_caption || "";
-      }catch(e){}
-
-      document.getElementById("charPrompt").textContent = currentCharPrompt;
-      document.getElementById("charUC").textContent = currentCharUC;
-
-      resetEditStates();
-    }
-
-    function resetEditStates(){
-      const editableIds = ["prompt", "negative", "charPrompt", "charUC"];
-      editableIds.forEach(id => {
-        const el = document.getElementById(id);
-        if(el){
-          el.contentEditable = "false";
-        }
-      });
-
-      document.querySelectorAll(".edit-btn").forEach(btn => {
-        btn.textContent = "Edit";
-      });
-    }
-
-    async function toggleEdit(id, btn){
-      const el = document.getElementById(id);
-      if(!el) return;
-
-      if(el.contentEditable === "true"){
-        syncEditableValues();
-        await persistCurrentGalleryMetadata();
-        el.contentEditable = "false";
-        btn.textContent = "Edit";
-      }else{
-        el.contentEditable = "true";
-        btn.textContent = "Save";
-        el.focus();
-
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        range.collapse(false);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
-    }
-
-    function sanitizeNegativePrompt(text){
-      if(!text) return "";
-
-      return text
-        .split(",")
-        .map(term => term.trim())
-        .filter(term => term && !DEFAULT_NEGATIVE_TERMS.has(term.toLowerCase()))
-        .join(", ");
-    }
-
-    function clearMetadataDisplay(){
-      currentMetadata = null;
-      currentGalleryItemId = null;
-      basePrompt = "";
-      negativePrompt = "";
-      currentCharPrompt = "";
-      currentCharUC = "";
-
-      document.getElementById("prompt").textContent = "";
-      document.getElementById("negative").textContent = "";
-      document.getElementById("seed").textContent = "-";
-      document.getElementById("steps").textContent = "-";
-      document.getElementById("sampler").textContent = "-";
-      document.getElementById("cfg").textContent = "-";
-      document.getElementById("size").textContent = "-";
-      document.getElementById("charPrompt").textContent = "";
-      document.getElementById("charUC").textContent = "";
-document.getElementById("rescale").textContent = "-";
-      resetEditStates();
-      document.getElementById("memoBtn").style.display = "none";
-    }
-
-    function syncEditableValues(){
-      basePrompt = document.getElementById("prompt").innerText;
-      negativePrompt = document.getElementById("negative").innerText;
-      currentCharPrompt = document.getElementById("charPrompt").innerText;
-      currentCharUC = document.getElementById("charUC").innerText;
-
-      if(!currentMetadata) return;
-
-      currentMetadata.prompt = basePrompt;
-      currentMetadata.uc = sanitizeNegativePrompt(negativePrompt);
-      negativePrompt = currentMetadata.uc;
-      document.getElementById("negative").textContent = negativePrompt;
-
-      if(currentMetadata.v4_prompt?.caption?.char_captions?.[0]){
-        currentMetadata.v4_prompt.caption.char_captions[0].char_caption = currentCharPrompt;
-      }
-
-      if(currentMetadata.v4_negative_prompt?.caption?.char_captions?.[0]){
-        currentMetadata.v4_negative_prompt.caption.char_captions[0].char_caption = currentCharUC;
-      }
-    }
-
-    async function persistCurrentGalleryMetadata(){
-      if(!currentGalleryItemId || !currentMetadata) return;
-
-      const item = galleryData.find(g => g.id === currentGalleryItemId);
-      if(!item) return;
-
-      item.metadataJson = JSON.stringify(currentMetadata);
-      await saveGalleryToDB();
-    }
-
-    function flashButton(buttonId, defaultText){
-      const btn = document.getElementById(buttonId);
-      btn.textContent = "✓";
-      setTimeout(()=>{
-        btn.textContent = defaultText;
-      }, 1200);
-    }
-
-    function copyBase(){
-      const text = document.getElementById("prompt").innerText;
-      navigator.clipboard.writeText(text);
-      flashButton("copyPromptBtn", "Copy");
-    }
-
-    function copyNegative(){
-      const text = document.getElementById("negative").innerText;
-      navigator.clipboard.writeText(text);
-      flashButton("copyNegativeBtn", "Copy");
-    }
-
-    function copyCharPrompt(){
-      const text = document.getElementById("charPrompt").innerText;
-      navigator.clipboard.writeText(text);
-      flashButton("copyCharPromptBtn", "Copy");
-    }
-
-    function copyCharUC(){
-      const text = document.getElementById("charUC").innerText;
-      navigator.clipboard.writeText(text);
-      flashButton("copyCharUCBtn", "Copy");
-    }
-
-    function openSaveModal(){
-      if(!currentFile) return;
-
-      const baseName = currentFile.name.replace(/\.[^/.]+$/, "");
-      document.getElementById("saveFileName").value = baseName;
-      document.getElementById("saveModal").style.display = "flex";
-    }
-
-    function closeSaveModal(){
-      document.getElementById("saveModal").style.display = "none";
-    }
-
-    async function saveImageAs(){
-      if(!currentFile) return;
-
-      let newName = document.getElementById("saveFileName").value.trim();
-      if(!newName){
-        newName = "image";
-      }
-
-      syncEditableValues();
-      await persistCurrentGalleryMetadata();
-
-      const ext = currentFile.name.split(".").pop() || "png";
-      const finalName = `${newName}.${ext}`;
-
-      const url = URL.createObjectURL(currentFile);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = finalName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      closeSaveModal();
-    }
-
-    function addCurrentToGallery(){
-      if(!currentFile) return;
-
-      pendingGalleryFile = currentFile;
-      const baseName = currentFile.name.replace(/\.[^/.]+$/, "");
-      document.getElementById("galleryItemName").value = baseName;
-      document.getElementById("galleryModal").style.display = "flex";
-    }
-
-    function closeGalleryModal(){
-      document.getElementById("galleryModal").style.display = "none";
-      pendingGalleryFile = null;
-    }
-
-    async function confirmAddToGallery(){
-      if(!pendingGalleryFile) return;
-
-      let customName = document.getElementById("galleryItemName").value.trim();
-      if(!customName){
-        customName = pendingGalleryFile.name.replace(/\.[^/.]+$/, "");
-      }
-
-      await addToGallery(pendingGalleryFile, customName);
-      document.getElementById("galleryModal").style.display = "none";
-      pendingGalleryFile = null;
-    }
-
-    async function addToGallery(file, customName){
-      const imageDataUrl = await readFileAsDataURL(file);
-      const metadataJson = await extractMetadataJsonFromFile(file);
-
-      if(!metadataJson) return;
-
-      const item = {
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-        name: customName || file.name,
-        originalFileName: file.name,
-        imageDataUrl,
-        metadataJson,
-        memo: ""
-      };
-
-      galleryData.push(item);
-      await saveGalleryToDB();
-      renderGallery();
-    }
-
-    function readFileAsDataURL(file){
-      return new Promise((resolve, reject)=>{
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function extractMetadataJsonFromFile(file){
-      try{
-        const data = await exifr.parse(file, true);
-
-        for(const key in data){
-          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
-            return data[key];
-          }
-        }
-      }catch(err){
-        console.log(err);
-      }
-      return null;
-    }
-
-    function renderGallery(){
-      const gallery = document.getElementById("gallery");
-      gallery.innerHTML = "";
-
-      galleryData.forEach((item)=>{
-        const wrapper = document.createElement("div");
-        wrapper.className = "gallery-item";
-
-        const img = document.createElement("img");
-        img.className = "gallery-thumb";
-        img.src = item.imageDataUrl;
-        img.alt = item.name || "gallery image";
-        img.onclick = () => loadGalleryItem(item.id);
-
-        const info = document.createElement("div");
-        info.className = "gallery-info";
-        info.textContent = item.name || "image";
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.className = "gallery-delete";
-        deleteBtn.type = "button";
-        deleteBtn.textContent = "×";
-        deleteBtn.onclick = async (e) => {
-          e.stopPropagation();
-          await deleteGalleryItem(item.id);
-        };
-
-        wrapper.appendChild(img);
-        wrapper.appendChild(deleteBtn);
-        wrapper.appendChild(info);
-        gallery.appendChild(wrapper);
-      });
-    }
-
-    async function loadGalleryItem(id){
-      const item = galleryData.find(g => g.id === id);
-      if(!item) return;
-      currentGalleryItemId = id;
-
-      document.getElementById("preview").src = item.imageDataUrl;
-      document.getElementById("preview").style.display = "block";
-      document.getElementById("imagePlaceholder").style.display = "none";
-
-      document.getElementById("saveBtn").style.display = "inline-block";
-      document.getElementById("addGalleryBtn").style.display = "none";
-      document.getElementById("memoBtn").style.display = "inline-block";
-
-      try{
-        const nai = JSON.parse(item.metadataJson);
-        applyMetadataToUI(nai);
-      }catch(err){
-        console.log(err);
-      }
-
-      try{
-        currentFile = dataURLToFile(
-          item.imageDataUrl,
-          item.originalFileName || item.name || "image.png"
-        );
-      }catch(err){
-        console.log(err);
-      }
-    }
-
-    function dataURLToFile(dataUrl, filename){
-      const arr = dataUrl.split(",");
-      const mimeMatch = arr[0].match(/:(.*?);/);
-      const mime = mimeMatch ? mimeMatch[1] : "image/png";
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-
-      while(n--){
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-
-      return new File([u8arr], filename, { type: mime });
-    }
-
-    async function deleteGalleryItem(id){
-      galleryData = galleryData.filter(item => item.id !== id);
-      await saveGalleryToDB();
-      renderGallery();
-    }
-
-    function openGalleryDB(){
-      return new Promise((resolve, reject)=>{
-        const request = indexedDB.open(GALLERY_DB_NAME, 1);
-
-        request.onupgradeneeded = function(event){
-          const db = event.target.result;
-          if(!db.objectStoreNames.contains(GALLERY_STORE_NAME)){
-            db.createObjectStore(GALLERY_STORE_NAME, { keyPath: "id" });
-          }
-        };
-
-        request.onsuccess = function(){
-          resolve(request.result);
-        };
-
-        request.onerror = function(){
-          reject(request.error);
-        };
-      });
-    }
-
-    async function saveGalleryToDB(){
-      const db = await openGalleryDB();
-
-      return new Promise((resolve, reject)=>{
-        const tx = db.transaction(GALLERY_STORE_NAME, "readwrite");
-        const store = tx.objectStore(GALLERY_STORE_NAME);
-
-        store.clear();
-        galleryData.forEach(item => {
-          store.put(item);
-        });
-
-        tx.oncomplete = function(){
-          resolve();
-        };
-
-        tx.onerror = function(){
-          reject(tx.error);
-        };
-      });
-    }
-
-    async function loadGalleryFromDB(){
-      const db = await openGalleryDB();
-
-      return new Promise((resolve, reject)=>{
-        const tx = db.transaction(GALLERY_STORE_NAME, "readonly");
-        const store = tx.objectStore(GALLERY_STORE_NAME);
-        const request = store.getAll();
-
-        request.onsuccess = function(){
-          galleryData = Array.isArray(request.result) ? request.result : [];
-          renderGallery();
-          resolve();
-        };
-
-        request.onerror = function(){
-          reject(request.error);
-        };
-      });
-    }
-
-
-    function openMemoModal(){
-      if(!currentGalleryItemId) return;
-
-      const item = galleryData.find(g => g.id === currentGalleryItemId);
-      if(!item) return;
-
-      document.getElementById("memoText").value = item.memo || "";
-      document.getElementById("memoModal").style.display = "flex";
-    }
-
-    function closeMemoModal(){
-      document.getElementById("memoModal").style.display = "none";
-    }
-
-    async function saveMemo(){
-      if(!currentGalleryItemId) return;
-
-      const item = galleryData.find(g => g.id === currentGalleryItemId);
-      if(!item) return;
-
-      item.memo = document.getElementById("memoText").value.trim();
-      await saveGalleryToDB();
-      closeMemoModal();
-    }
-
-    function openThemeModal(){
-      fillThemeInputsFromCurrent();
-      renderThemeList();
-      document.getElementById("themeModal").style.display = "flex";
-    }
-
-    function closeThemeModal(){
-      document.getElementById("themeModal").style.display = "none";
-    }
-
-    function fillThemeInputsFromCurrent(){
-      const style = getComputedStyle(document.documentElement);
-      document.getElementById("themeBg").value = rgbToHex(style.getPropertyValue("--bg-color").trim());
-      document.getElementById("themeCard").value = rgbToHex(style.getPropertyValue("--card-color").trim());
-      document.getElementById("themeText").value = rgbToHex(style.getPropertyValue("--text-color").trim());
-      document.getElementById("themeButton").value = rgbToHex(style.getPropertyValue("--button-color").trim());
-      document.getElementById("themeButtonText").value = rgbToHex(style.getPropertyValue("--button-text-color").trim());
-      document.getElementById("themeBorder").value = rgbToHex(style.getPropertyValue("--border-color").trim());
-      document.getElementById("themeEdit").value = rgbToHex(style.getPropertyValue("--edit-color").trim());
-      document.getElementById("themeButtonShadow").value = rgbToHex(style.getPropertyValue("--button-shadow-color").trim());
-      document.getElementById("themeCustomCss").value = activeCustomCss;
-    }
-
-    function getThemeFromInputs(){
-      return {
-        name: document.getElementById("themeName").value.trim() || "새 테마",
-        bgColor: document.getElementById("themeBg").value,
-        cardColor: document.getElementById("themeCard").value,
-        textColor: document.getElementById("themeText").value,
-        buttonColor: document.getElementById("themeButton").value,
-        buttonTextColor: document.getElementById("themeButtonText").value,
-        borderColor: document.getElementById("themeBorder").value,
-        editColor: document.getElementById("themeEdit").value,
-        buttonShadowColor: document.getElementById("themeButtonShadow").value,
-        customCss: document.getElementById("themeCustomCss").value.trim()
-      };
-    }
-
-    function hexToRgba(hex, alpha){
-      const clean = hex.replace("#", "");
-      const bigint = parseInt(clean, 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >> 8) & 255;
-      const b = bigint & 255;
-      return `rgba(${r},${g},${b},${alpha})`;
-    }
-
-    function applyCustomCss(cssText){
-      let styleEl = document.getElementById(CUSTOM_THEME_STYLE_ID);
-      if(!styleEl){
-        styleEl = document.createElement("style");
-        styleEl.id = CUSTOM_THEME_STYLE_ID;
-        document.head.appendChild(styleEl);
-      }
-
-      activeCustomCss = cssText || "";
-      styleEl.textContent = activeCustomCss;
-    }
-
-    function applyTheme(theme){
-      document.documentElement.style.setProperty("--bg-color", theme.bgColor);
-      document.documentElement.style.setProperty("--card-color", theme.cardColor);
-      document.documentElement.style.setProperty("--text-color", theme.textColor);
-      document.documentElement.style.setProperty("--button-color", theme.buttonColor);
-      document.documentElement.style.setProperty("--button-text-color", theme.buttonTextColor);
-      document.documentElement.style.setProperty("--border-color", theme.borderColor);
-      document.documentElement.style.setProperty("--edit-color", theme.editColor);
-      document.documentElement.style.setProperty("--button-shadow-color", theme.buttonShadowColor);
-      document.documentElement.style.setProperty("--button-shadow-rgba", hexToRgba(theme.buttonShadowColor, 0.35));
-
-      const normalizedTheme = { ...theme, customCss: theme.customCss || "" };
-      applyCustomCss(normalizedTheme.customCss);
-      localStorage.setItem(ACTIVE_THEME_STORAGE_KEY, JSON.stringify(normalizedTheme));
-    }
-
-    function saveTheme(){
-      const theme = getThemeFromInputs();
-
-      const existingIndex = savedThemes.findIndex(t => t.name === theme.name);
-      if(existingIndex >= 0){
-        savedThemes[existingIndex] = theme;
-      }else{
-        savedThemes.push(theme);
-      }
-
-      localStorage.setItem(THEMES_STORAGE_KEY, JSON.stringify(savedThemes));
-      applyTheme(theme);
-      renderThemeList();
-      document.getElementById("themeName").value = "";
-    }
-
-    function applySavedThemeByName(name){
-      const theme = savedThemes.find(t => t.name === name);
-      if(!theme) return;
-      applyTheme(theme);
-      fillThemeInputsFromCurrent();
-    }
-
-    function deleteSavedTheme(name){
-      savedThemes = savedThemes.filter(t => t.name !== name);
-      localStorage.setItem(THEMES_STORAGE_KEY, JSON.stringify(savedThemes));
-      renderThemeList();
-    }
-
-    function renderThemeList(){
-      const wrap = document.getElementById("themeList");
-      wrap.innerHTML = "";
-
-      if(savedThemes.length === 0){
-        const empty = document.createElement("div");
-        empty.className = "theme-item";
-        empty.innerHTML = '<div class="theme-name">저장된 테마가 없습니다.</div>';
-        wrap.appendChild(empty);
-        return;
-      }
-
-      savedThemes.forEach(theme => {
-        const item = document.createElement("div");
-        item.className = "theme-item";
-
-        const name = document.createElement("div");
-        name.className = "theme-name";
-        name.textContent = theme.name;
-
-        const applyBtn = document.createElement("button");
-        applyBtn.type = "button";
-        applyBtn.className = "theme-small-btn";
-        applyBtn.textContent = "적용";
-        applyBtn.onclick = () => applySavedThemeByName(theme.name);
-
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "theme-small-btn";
-        delBtn.textContent = "삭제";
-        delBtn.onclick = () => deleteSavedTheme(theme.name);
-
-        item.appendChild(name);
-        item.appendChild(applyBtn);
-        item.appendChild(delBtn);
-        wrap.appendChild(item);
-      });
-    }
-
-    function resetThemeToDefault(){
-      applyTheme({ ...DEFAULT_THEME, customCss: "" });
-      fillThemeInputsFromCurrent();
-    }
-
-    function loadActiveTheme(){
-      const saved = localStorage.getItem(ACTIVE_THEME_STORAGE_KEY);
-      if(!saved) return;
-
-      try{
-        const theme = JSON.parse(saved);
-        applyTheme(theme);
-      }catch(err){
-        console.log(err);
-      }
-    }
-
-    function rgbToHex(color){
-      if(!color) return "#000000";
-      if(color.startsWith("#")) return color;
-
-      const result = color.match(/\d+/g);
-      if(!result) return "#000000";
-
-      return "#" + result.slice(0,3).map(x => {
-        const hex = parseInt(x, 10).toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
-      }).join("");
-    }
-
-    const dropZone = document.getElementById("dropZone");
-
-    dropZone.addEventListener("dragover", (e)=>{
-      e.preventDefault();
-      dropZone.classList.add("dragover");
-    });
-
-    dropZone.addEventListener("dragleave", ()=>{
-      dropZone.classList.remove("dragover");
-    });
-
-    dropZone.addEventListener("drop", (e)=>{
-      e.preventDefault();
-      dropZone.classList.remove("dragover");
-
-      const file = e.dataTransfer.files[0];
-      if(!file) return;
-
-      handleImageFile(file);
-    });
-
-    loadActiveTheme();
-    loadGalleryFromDB();
-  </script>
+ <script>
+const GALLERY_DB_NAME="nai_metadata_gallery_db";
+const GALLERY_STORE_NAME="galleryItems";
+const THEMES_STORAGE_KEY="ggang_saved_themes_v2";
+const ACTIVE_THEME_STORAGE_KEY="ggang_active_theme_v2";
+
+let currentFile=null;
+let currentMetadata=null;
+
+let basePrompt="";
+let negativePrompt="";
+let currentCharPrompt="";
+let currentCharUC="";
+
+let currentGalleryItemId=null;
+let galleryData=[];
+let pendingGalleryFile=null;
+
+document.getElementById("imageInput").addEventListener("change",function(e){
+const file=e.target.files[0];
+if(!file)return;
+handleImageFile(file);
+});
+
+async function handleImageFile(file){
+
+currentFile=file;
+currentGalleryItemId=null;
+
+document.getElementById("saveBtn").style.display="inline-block";
+document.getElementById("addGalleryBtn").style.display="inline-block";
+document.getElementById("memoBtn").style.display="none";
+
+const reader=new FileReader();
+
+reader.onload=function(e){
+document.getElementById("preview").src=e.target.result;
+document.getElementById("preview").style.display="block";
+document.getElementById("imagePlaceholder").style.display="none";
+};
+
+reader.readAsDataURL(file);
+
+try{
+
+const data=await exifr.parse(file,true);
+
+let jsonText=data.Comment||data.comment||null;
+
+if(!jsonText){
+clearMetadataDisplay();
+return;
+}
+
+const nai=JSON.parse(jsonText);
+applyMetadataToUI(nai);
+
+}catch(err){
+console.log(err);
+}
+
+}
+
+function applyMetadataToUI(nai){
+
+currentMetadata=JSON.parse(JSON.stringify(nai));
+
+basePrompt=nai.prompt||"";
+negativePrompt=nai.uc||"";
+
+document.getElementById("prompt").textContent=basePrompt;
+document.getElementById("negative").textContent=negativePrompt;
+
+document.getElementById("seed").textContent=nai.seed||"-";
+document.getElementById("steps").textContent=nai.steps||"-";
+document.getElementById("sampler").textContent=nai.sampler||"-";
+document.getElementById("cfg").textContent=nai.scale||"-";
+
+document.getElementById("size").textContent=
+(nai.width&&nai.height)?`${nai.width} x ${nai.height}`:"-";
+
+document.getElementById("rescale").textContent=nai.cfg_rescale??"-";
+
+try{
+currentCharPrompt=nai.v4_prompt.caption.char_captions[0].char_caption||"";
+}catch{}
+
+try{
+currentCharUC=nai.v4_negative_prompt.caption.char_captions[0].char_caption||"";
+}catch{}
+
+document.getElementById("charPrompt").textContent=currentCharPrompt;
+document.getElementById("charUC").textContent=currentCharUC;
+
+resetEditStates();
+
+}
+
+function resetEditStates(){
+
+["prompt","negative","charPrompt","charUC"].forEach(id=>{
+const el=document.getElementById(id);
+if(el)el.contentEditable="false";
+});
+
+document.querySelectorAll(".edit-btn").forEach(btn=>{
+btn.textContent="Edit";
+});
+
+}
+
+async function toggleEdit(id,btn){
+
+const el=document.getElementById(id);
+if(!el)return;
+
+if(el.contentEditable==="true"){
+
+syncEditableValues();
+await persistCurrentGalleryMetadata();
+
+el.contentEditable="false";
+btn.textContent="Edit";
+
+}else{
+
+el.contentEditable="true";
+btn.textContent="Save";
+
+el.focus();
+
+const range=document.createRange();
+range.selectNodeContents(el);
+range.collapse(false);
+
+const sel=window.getSelection();
+sel.removeAllRanges();
+sel.addRange(range);
+
+}
+
+}
+
+function syncEditableValues(){
+
+basePrompt=document.getElementById("prompt").innerText;
+negativePrompt=document.getElementById("negative").innerText;
+
+currentCharPrompt=document.getElementById("charPrompt").innerText;
+currentCharUC=document.getElementById("charUC").innerText;
+
+if(!currentMetadata)return;
+
+currentMetadata.prompt=basePrompt;
+currentMetadata.uc=negativePrompt;
+
+if(currentMetadata.v4_prompt?.caption?.char_captions?.[0]){
+currentMetadata.v4_prompt.caption.char_captions[0].char_caption=currentCharPrompt;
+}
+
+if(currentMetadata.v4_negative_prompt?.caption?.char_captions?.[0]){
+currentMetadata.v4_negative_prompt.caption.char_captions[0].char_caption=currentCharUC;
+}
+
+}
+
+async function persistCurrentGalleryMetadata(){
+
+if(!currentGalleryItemId||!currentMetadata)return;
+
+const item=galleryData.find(g=>g.id===currentGalleryItemId);
+if(!item)return;
+
+item.metadataJson=JSON.stringify(currentMetadata);
+await saveGalleryToDB();
+
+}
+
+function clearMetadataDisplay(){
+
+currentMetadata=null;
+
+basePrompt="";
+negativePrompt="";
+currentCharPrompt="";
+currentCharUC="";
+
+document.getElementById("prompt").textContent="";
+document.getElementById("negative").textContent="";
+
+document.getElementById("seed").textContent="-";
+document.getElementById("steps").textContent="-";
+document.getElementById("sampler").textContent="-";
+document.getElementById("cfg").textContent="-";
+document.getElementById("size").textContent="-";
+document.getElementById("rescale").textContent="-";
+
+document.getElementById("charPrompt").textContent="";
+document.getElementById("charUC").textContent="";
+
+resetEditStates();
+
+document.getElementById("memoBtn").style.display="none";
+
+}
+
+async function addCurrentToGallery(){
+
+if(!currentFile)return;
+
+pendingGalleryFile=currentFile;
+
+const baseName=currentFile.name.replace(/\.[^/.]+$/,"");
+
+document.getElementById("galleryItemName").value=baseName;
+document.getElementById("galleryModal").style.display="flex";
+
+}
+
+async function confirmAddToGallery(){
+
+if(!pendingGalleryFile)return;
+
+let customName=document.getElementById("galleryItemName").value.trim();
+
+if(!customName){
+customName=pendingGalleryFile.name.replace(/\.[^/.]+$/,"");
+}
+
+await addToGallery(pendingGalleryFile,customName);
+
+document.getElementById("galleryModal").style.display="none";
+pendingGalleryFile=null;
+
+}
+
+async function addToGallery(file,customName){
+
+const imageDataUrl=await readFileAsDataURL(file);
+const metadataJson=await extractMetadataJsonFromFile(file);
+
+if(!metadataJson)return;
+
+const item={
+id:crypto.randomUUID(),
+name:customName,
+originalFileName:file.name,
+imageDataUrl,
+metadataJson,
+memo:""
+};
+
+galleryData.push(item);
+
+await saveGalleryToDB();
+renderGallery();
+
+}
+
+async function extractMetadataJsonFromFile(file){
+
+try{
+
+const data=await exifr.parse(file,true);
+
+return data.Comment||data.comment||null;
+
+}catch(e){
+console.log(e);
+}
+
+return null;
+
+}
+
+function readFileAsDataURL(file){
+
+return new Promise((resolve,reject)=>{
+
+const reader=new FileReader();
+
+reader.onload=e=>resolve(e.target.result);
+reader.onerror=reject;
+
+reader.readAsDataURL(file);
+
+});
+
+}
+
+function renderGallery(){
+
+const gallery=document.getElementById("gallery");
+gallery.innerHTML="";
+
+galleryData.forEach(item=>{
+
+const wrapper=document.createElement("div");
+wrapper.className="gallery-item";
+
+const img=document.createElement("img");
+img.className="gallery-thumb";
+img.src=item.imageDataUrl;
+
+img.onclick=()=>loadGalleryItem(item.id);
+
+const info=document.createElement("div");
+info.className="gallery-info";
+info.textContent=item.name;
+
+const deleteBtn=document.createElement("button");
+deleteBtn.className="gallery-delete";
+deleteBtn.textContent="×";
+
+deleteBtn.onclick=async(e)=>{
+e.stopPropagation();
+await deleteGalleryItem(item.id);
+};
+
+wrapper.appendChild(img);
+wrapper.appendChild(deleteBtn);
+wrapper.appendChild(info);
+
+gallery.appendChild(wrapper);
+
+});
+
+}
+
+async function loadGalleryItem(id){
+
+const item=galleryData.find(g=>g.id===id);
+if(!item)return;
+
+currentGalleryItemId=id;
+
+document.getElementById("preview").src=item.imageDataUrl;
+document.getElementById("preview").style.display="block";
+document.getElementById("imagePlaceholder").style.display="none";
+
+document.getElementById("saveBtn").style.display="inline-block";
+document.getElementById("addGalleryBtn").style.display="none";
+document.getElementById("memoBtn").style.display="inline-block";
+
+try{
+
+const nai=JSON.parse(item.metadataJson);
+applyMetadataToUI(nai);
+
+}catch(e){
+console.log(e);
+}
+
+}
+
+async function deleteGalleryItem(id){
+
+galleryData=galleryData.filter(item=>item.id!==id);
+
+await saveGalleryToDB();
+renderGallery();
+
+}
+
+function openGalleryDB(){
+
+return new Promise((resolve,reject)=>{
+
+const request=indexedDB.open(GALLERY_DB_NAME,1);
+
+request.onupgradeneeded=function(e){
+
+const db=e.target.result;
+
+if(!db.objectStoreNames.contains(GALLERY_STORE_NAME)){
+db.createObjectStore(GALLERY_STORE_NAME,{keyPath:"id"});
+}
+
+};
+
+request.onsuccess=()=>resolve(request.result);
+request.onerror=()=>reject(request.error);
+
+});
+
+}
+
+async function saveGalleryToDB(){
+
+const db=await openGalleryDB();
+
+return new Promise((resolve,reject)=>{
+
+const tx=db.transaction(GALLERY_STORE_NAME,"readwrite");
+const store=tx.objectStore(GALLERY_STORE_NAME);
+
+store.clear();
+
+galleryData.forEach(item=>store.put(item));
+
+tx.oncomplete=resolve;
+tx.onerror=()=>reject(tx.error);
+
+});
+
+}
+
+async function loadGalleryFromDB(){
+
+const db=await openGalleryDB();
+
+return new Promise((resolve,reject)=>{
+
+const tx=db.transaction(GALLERY_STORE_NAME,"readonly");
+const store=tx.objectStore(GALLERY_STORE_NAME);
+
+const request=store.getAll();
+
+request.onsuccess=function(){
+
+galleryData=request.result||[];
+renderGallery();
+
+resolve();
+
+};
+
+request.onerror=()=>reject(request.error);
+
+});
+
+}
+
+loadGalleryFromDB();
+</script>
 </body>
 </html>
