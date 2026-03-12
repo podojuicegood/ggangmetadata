@@ -1113,7 +1113,7 @@ document.getElementById("rescale").textContent = "-";
     function extractMetadataObjectFromExifData(data){
       if(!data) return null;
 
-      if(typeof data === "object" && data.prompt){
+      if(isLikelyMetadataObject(data)){
         return data;
       }
 
@@ -1142,12 +1142,12 @@ document.getElementById("rescale").textContent = "-";
       if(!raw) return null;
 
       const parsedDirect = safeJsonParse(raw);
-      if(parsedDirect?.prompt) return parsedDirect;
+      if(isLikelyMetadataObject(parsedDirect)) return parsedDirect;
 
       const wrappedParse = safeJsonParse(raw);
       if(typeof wrappedParse === "string"){
         const parsedWrapped = safeJsonParse(wrappedParse);
-        if(parsedWrapped?.prompt) return parsedWrapped;
+        if(isLikelyMetadataObject(parsedWrapped)) return parsedWrapped;
       }
 
       const start = raw.indexOf("{");
@@ -1155,10 +1155,19 @@ document.getElementById("rescale").textContent = "-";
       if(start >= 0 && end > start){
         const sliced = raw.slice(start, end + 1);
         const parsedSliced = safeJsonParse(sliced);
-        if(parsedSliced?.prompt) return parsedSliced;
+        if(isLikelyMetadataObject(parsedSliced)) return parsedSliced;
       }
 
       return null;
+    }
+
+    function isLikelyMetadataObject(value){
+      if(!value || typeof value !== "object" || Array.isArray(value)) return false;
+
+      return Object.prototype.hasOwnProperty.call(value, "prompt")
+        || Object.prototype.hasOwnProperty.call(value, "uc")
+        || Object.prototype.hasOwnProperty.call(value, "v4_prompt")
+        || Object.prototype.hasOwnProperty.call(value, "v4_negative_prompt");
     }
 
     function safeJsonParse(text){
