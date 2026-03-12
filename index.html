@@ -830,15 +830,21 @@ border: 0.7px solid #808080;
       try{
         const data = await exifr.parse(file, true);
 
-let jsonText = data.Comment || data.comment || null;
+        let jsonText = null;
 
-if(!jsonText){
-  clearMetadataDisplay();
-  return;
-}
+        for(const key in data){
+          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
+            jsonText = data[key];
+          }
+        }
 
-const nai = JSON.parse(jsonText);
-applyMetadataToUI(nai);
+        if(!jsonText){
+          clearMetadataDisplay();
+          return;
+        }
+
+        const nai = JSON.parse(jsonText);
+        applyMetadataToUI(nai);
 
       }catch(err){
         console.log(err);
@@ -848,7 +854,7 @@ applyMetadataToUI(nai);
     function applyMetadataToUI(nai){
       currentMetadata = nai ? JSON.parse(JSON.stringify(nai)) : null;
       basePrompt = nai.prompt || "";
-      negativePrompt = nai.uc ?? "";
+      negativePrompt = nai.uc || "";
       currentCharPrompt = "";
       currentCharUC = "";
 
@@ -1023,7 +1029,12 @@ document.getElementById("rescale").textContent = "-";
       const ext = currentFile.name.split(".").pop() || "png";
       const finalName = `${newName}.${ext}`;
 
-      const url = URL.createObjectURL(currentFile);
+      let fileToDownload = currentFile;
+      if(currentMetadata && ext.toLowerCase() === "png"){
+        fileToDownload = await buildEditedPngFile(currentFile, JSON.stringify(currentMetadata));
+      }
+
+      const url = URL.createObjectURL(fileToDownload);
       const a = document.createElement("a");
       a.href = url;
       a.download = finalName;
@@ -1065,7 +1076,7 @@ document.getElementById("rescale").textContent = "-";
     async function addToGallery(file, customName){
       const imageDataUrl = await readFileAsDataURL(file);
       syncEditableValues();
-      const metadataJson = await extractMetadataJsonFromFile(file);
+      const metadataJson = await getMetadataJsonForSave(file);
 
       if(!metadataJson) return;
 
@@ -1092,15 +1103,150 @@ document.getElementById("rescale").textContent = "-";
       });
     }
 
-   async function extractMetadataJsonFromFile(file){
-  try{
-    const data = await exifr.parse(file, true);
-    return data.Comment || data.comment || null;
-  }catch(err){
-    console.log(err);
-  }
-  return null;
-}
+    async function extractMetadataJsonFromFile(file){
+      try{
+        const data = await exifr.parse(file, true);
+
+        for(const key in data){
+          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
+            return data[key];
+          }
+        }
+      }catch(err){
+        console.log(err);
+      }
+      return null;
+    }
+
+    async function getMetadataJsonForSave(file){
+      if(currentMetadata && file === currentFile){
+        return JSON.stringify(currentMetadata);
+      }
+
+      return extractMetadataJsonFromFile(file);
+    }
+
+    async function buildEditedPngFile(file, metadataJson){
+      const sourceBytes = new Uint8Array(await file.arrayBuffer());
+      const keywordBytes = new TextEncoder().encode("Comment");
+      const textBytes = new TextEncoder().encode(metadataJson || "");
+      const chunkData = new Uint8Array(keywordBytes.length + 1 + textBytes.length);
+      chunkData.set(keywordBytes, 0);
+      chunkData[keywordBytes.length] = 0;
+      chunkData.set(textBytes, keywordBytes.length + 1);
+
+      const commentChunk = createPngChunk("tEXt", chunkData);
+
+      const PNG_SIGNATURE_LENGTH = 8;
+      const chunks = [];
+      chunks.push(sourceBytes.slice(0, PNG_SIGNATURE_LENGTH));
+
+      let offset = PNG_SIGNATURE_LENGTH;
+      let insertedComment = false;
+
+      while(offset + 8 <= sourceBytes.length){
+        const length = readUint32(sourceBytes, offset);
+        const typeStart = offset + 4;
+        const typeEnd = typeStart + 4;
+        const dataStart = typeEnd;
+        const dataEnd = dataStart + length;
+        const crcEnd = dataEnd + 4;
+
+        if(crcEnd > sourceBytes.length){
+          break;
+        }
+
+        const type = readAscii(sourceBytes, typeStart, typeEnd);
+        const chunkBytes = sourceBytes.slice(offset, crcEnd);
+
+        if(type === "IEND"){
+          if(!insertedComment){
+            chunks.push(commentChunk);
+            insertedComment = true;
+          }
+          chunks.push(chunkBytes);
+          break;
+        }
+
+        if(type !== "tEXt" || !pngTextChunkIsComment(sourceBytes.slice(dataStart, dataEnd))){
+          chunks.push(chunkBytes);
+        }
+
+        offset = crcEnd;
+      }
+
+      if(!insertedComment){
+        chunks.push(commentChunk);
+      }
+
+      const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+      const output = new Uint8Array(totalLength);
+      let cursor = 0;
+      chunks.forEach(chunk => {
+        output.set(chunk, cursor);
+        cursor += chunk.length;
+      });
+
+      return new File([output], file.name, { type: file.type || "image/png" });
+    }
+
+    function pngTextChunkIsComment(data){
+      const separatorIndex = data.indexOf(0);
+      if(separatorIndex < 0) return false;
+      const key = readAscii(data, 0, separatorIndex);
+      return key === "Comment";
+    }
+
+    function createPngChunk(type, data){
+      const typeBytes = new TextEncoder().encode(type);
+      const output = new Uint8Array(12 + data.length);
+
+      writeUint32(output, 0, data.length);
+      output.set(typeBytes, 4);
+      output.set(data, 8);
+
+      const crcSource = output.slice(4, 8 + data.length);
+      const crc = crc32(crcSource);
+      writeUint32(output, 8 + data.length, crc >>> 0);
+      return output;
+    }
+
+    function readUint32(bytes, offset){
+      return ((bytes[offset] << 24) >>> 0)
+        + ((bytes[offset + 1] << 16) >>> 0)
+        + ((bytes[offset + 2] << 8) >>> 0)
+        + (bytes[offset + 3] >>> 0);
+    }
+
+    function writeUint32(bytes, offset, value){
+      bytes[offset] = (value >>> 24) & 0xff;
+      bytes[offset + 1] = (value >>> 16) & 0xff;
+      bytes[offset + 2] = (value >>> 8) & 0xff;
+      bytes[offset + 3] = value & 0xff;
+    }
+
+    function readAscii(bytes, start, end){
+      let text = "";
+      for(let i = start; i < end; i++){
+        text += String.fromCharCode(bytes[i]);
+      }
+      return text;
+    }
+
+    function crc32(bytes){
+      let crc = 0xffffffff;
+      for(let i = 0; i < bytes.length; i++){
+        crc ^= bytes[i];
+        for(let bit = 0; bit < 8; bit++){
+          const shouldXor = crc & 1;
+          crc >>>= 1;
+          if(shouldXor){
+            crc ^= 0xedb88320;
+          }
+        }
+      }
+      return (crc ^ 0xffffffff) >>> 0;
+    }
 
     function renderGallery(){
       const gallery = document.getElementById("gallery");
