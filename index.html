@@ -769,6 +769,27 @@ border: 0.7px solid #808080;
     let currentCharPrompt = "";
     let currentCharUC = "";
     let currentMetadata = null;
+
+    const DEFAULT_NEGATIVE_TERMS = new Set([
+      "nsfw",
+      "lowres",
+      "artistic error",
+      "film grain",
+      "scan artifacts",
+      "worst quality",
+      "bad quality",
+      "jpeg artifacts",
+      "very displeasing",
+      "chromatic aberration",
+      "dithering",
+      "halftone",
+      "screentone",
+      "multiple views",
+      "logo",
+      "too many watermarks",
+      "negative space",
+      "blank page"
+    ]);
     let currentGalleryItemId = null;
     let galleryData = [];
     let pendingGalleryFile = null;
@@ -821,7 +842,7 @@ border: 0.7px solid #808080;
     function applyMetadataToUI(nai){
       currentMetadata = nai ? JSON.parse(JSON.stringify(nai)) : null;
       basePrompt = nai.prompt || "";
-      negativePrompt = nai.uc || "";
+      negativePrompt = sanitizeNegativePrompt(nai.uc || "");
       currentCharPrompt = "";
       currentCharUC = "";
 
@@ -884,6 +905,16 @@ document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
       }
     }
 
+    function sanitizeNegativePrompt(text){
+      if(!text) return "";
+
+      return text
+        .split(",")
+        .map(term => term.trim())
+        .filter(term => term && !DEFAULT_NEGATIVE_TERMS.has(term.toLowerCase()))
+        .join(", ");
+    }
+
     function clearMetadataDisplay(){
       currentMetadata = null;
       currentGalleryItemId = null;
@@ -914,7 +945,9 @@ document.getElementById("rescale").textContent = "-";
       if(!currentMetadata) return;
 
       currentMetadata.prompt = basePrompt;
-      currentMetadata.uc = negativePrompt;
+      currentMetadata.uc = sanitizeNegativePrompt(negativePrompt);
+      negativePrompt = currentMetadata.uc;
+      document.getElementById("negative").textContent = negativePrompt;
 
       if(currentMetadata.v4_prompt?.caption?.char_captions?.[0]){
         currentMetadata.v4_prompt.caption.char_captions[0].char_caption = currentCharPrompt;
