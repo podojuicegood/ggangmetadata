@@ -1018,15 +1018,18 @@ document.getElementById("rescale").textContent = "-";
       syncEditableValues();
       await persistCurrentGalleryMetadata();
 
-      const ext = currentFile.name.split(".").pop() || "png";
-      const finalName = `${newName}.${ext}`;
-
+      const originalExt = (currentFile.name.split(".").pop() || "png").toLowerCase();
       let fileToDownload = currentFile;
-      const isPng = await isPngFile(currentFile);
-      if(currentMetadata && isPng){
-        fileToDownload = await buildEditedPngFile(currentFile, JSON.stringify(currentMetadata));
+      let finalExt = originalExt;
+
+      if(currentMetadata){
+        const metadataJson = JSON.stringify(currentMetadata);
+        const sourcePngFile = await ensurePngFile(currentFile);
+        fileToDownload = await buildEditedPngFile(sourcePngFile, metadataJson);
+        finalExt = "png";
       }
 
+      const finalName = `${newName}.${finalExt}`;
       const url = URL.createObjectURL(fileToDownload);
       const a = document.createElement("a");
       a.href = url;
@@ -1172,6 +1175,30 @@ document.getElementById("rescale").textContent = "-";
       }
 
       return extractMetadataJsonFromFile(file);
+    }
+
+    async function ensurePngFile(file){
+      if(await isPngFile(file)){
+        return file;
+      }
+
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement("canvas");
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(bitmap, 0, 0);
+      bitmap.close();
+
+      const pngBlob = await new Promise((resolve, reject)=>{
+        canvas.toBlob((blob)=>{
+          if(blob) resolve(blob);
+          else reject(new Error("PNG 변환 실패"));
+        }, "image/png");
+      });
+
+      const baseName = file.name.replace(/\.[^/.]+$/, "") || "image";
+      return new File([pngBlob], `${baseName}.png`, { type: "image/png" });
     }
 
     async function isPngFile(file){
