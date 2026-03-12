@@ -848,7 +848,7 @@ applyMetadataToUI(nai);
     function applyMetadataToUI(nai){
       currentMetadata = nai ? JSON.parse(JSON.stringify(nai)) : null;
       basePrompt = nai.prompt || "";
-negativePrompt = nai.v4_negative_prompt?.caption?.base_caption ?? nai.uc ?? "";
+negativePrompt = nai.uc || "";
       currentCharPrompt = "";
       currentCharUC = "";
 
