@@ -1111,29 +1111,49 @@ document.getElementById("rescale").textContent = "-";
     }
 
     function extractMetadataObjectFromExifData(data){
-      if(!data) return null;
+       if(!data) return null;
 
-      if(isLikelyMetadataObject(data)){
-        return data;
-      }
+  if(isLikelyMetadataObject(data)){
+    return data;
+  }
 
-      const candidates = [];
-      if(typeof data.Comment === "string") candidates.push(data.Comment);
-      if(typeof data.comment === "string") candidates.push(data.comment);
+  const candidates = [];
 
-      for(const key in data){
-        if(typeof data[key] === "string"){
-          candidates.push(data[key]);
-        }
-      }
+  if(typeof data.Comment === "string") candidates.push(data.Comment);
+  if(typeof data.comment === "string") candidates.push(data.comment);
+  if(typeof data.parameters === "string") candidates.push(data.parameters);
+  if(typeof data.UserComment === "string") candidates.push(data.UserComment);
+  if(typeof data.Description === "string") candidates.push(data.Description);
 
-      for(const candidate of candidates){
-        const parsed = parseMetadataCandidate(candidate);
-        if(parsed) return parsed;
-      }
+  for(const key in data){
 
-      return null;
+    const value = data[key];
+
+    if(typeof value === "string"){
+      candidates.push(value);
     }
+
+    if(typeof value === "object" && value){
+      try{
+        const str = JSON.stringify(value);
+        if(str) candidates.push(str);
+      }catch(e){}
+    }
+
+  }
+
+  for(const candidate of candidates){
+
+    const parsed = parseMetadataCandidate(candidate);
+
+    if(parsed){
+      return parsed;
+    }
+
+  }
+
+  return null;
+}
 
     function parseMetadataCandidate(candidate){
       if(typeof candidate !== "string") return null;
