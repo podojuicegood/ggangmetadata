@@ -1034,7 +1034,8 @@ document.getElementById("rescale").textContent = "-";
       const finalName = `${newName}.${ext}`;
 
       let fileToDownload = currentFile;
-      if(currentMetadata && ext.toLowerCase() === "png"){
+      const isPng = await isPngFile(currentFile);
+      if(currentMetadata && isPng){
         fileToDownload = await buildEditedPngFile(currentFile, JSON.stringify(currentMetadata));
       }
 
@@ -1132,6 +1133,18 @@ document.getElementById("rescale").textContent = "-";
       }
 
       return extractMetadataJsonFromFile(file);
+    }
+
+    async function isPngFile(file){
+      if((file.type || "").toLowerCase() === "image/png"){
+        return true;
+      }
+
+      const header = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+      if(header.length < 8) return false;
+
+      const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+      return pngSignature.every((value, idx) => header[idx] === value);
     }
 
     async function buildEditedPngFile(file, metadataJson){
