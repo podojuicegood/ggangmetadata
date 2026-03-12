@@ -829,25 +829,13 @@ border: 0.7px solid #808080;
 
       try{
         const data = await exifr.parse(file, true);
+        const nai = extractMetadataObjectFromExifData(data);
 
-        let jsonText = data?.Comment || data?.comment || null;
-
-        if(!(typeof jsonText === "string" && jsonText.includes('"prompt"'))){
-          jsonText = null;
-          for(const key in data){
-            if(typeof data[key] === "string" && data[key].includes('"prompt"')){
-              jsonText = data[key];
-              break;
-            }
-          }
-        }
-
-        if(!jsonText){
+        if(!nai){
           clearMetadataDisplay();
           return;
         }
 
-        const nai = JSON.parse(jsonText);
         applyMetadataToUI(nai);
 
       }catch(err){
@@ -1111,20 +1099,71 @@ document.getElementById("rescale").textContent = "-";
     async function extractMetadataJsonFromFile(file){
       try{
         const data = await exifr.parse(file, true);
-        const directComment = data?.Comment || data?.comment || null;
-        if(typeof directComment === "string" && directComment.includes('"prompt"')){
-          return directComment;
-        }
-
-        for(const key in data){
-          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
-            return data[key];
-          }
-        }
+        const metadataObj = extractMetadataObjectFromExifData(data);
+        return metadataObj ? JSON.stringify(metadataObj) : null;
       }catch(err){
         console.log(err);
       }
       return null;
+    }
+
+    function extractMetadataObjectFromExifData(data){
+      if(!data) return null;
+
+      if(typeof data === "object" && data.prompt){
+        return data;
+      }
+
+      const candidates = [];
+      if(typeof data.Comment === "string") candidates.push(data.Comment);
+      if(typeof data.comment === "string") candidates.push(data.comment);
+
+      for(const key in data){
+        if(typeof data[key] === "string"){
+          candidates.push(data[key]);
+        }
+      }
+
+      for(const candidate of candidates){
+        const parsed = parseMetadataCandidate(candidate);
+        if(parsed) return parsed;
+      }
+
+      return null;
+    }
+
+    function parseMetadataCandidate(candidate){
+      if(typeof candidate !== "string") return null;
+
+      const raw = candidate.trim();
+      if(!raw) return null;
+
+      const parsedDirect = safeJsonParse(raw);
+      if(parsedDirect?.prompt) return parsedDirect;
+
+      const wrappedParse = safeJsonParse(raw);
+      if(typeof wrappedParse === "string"){
+        const parsedWrapped = safeJsonParse(wrappedParse);
+        if(parsedWrapped?.prompt) return parsedWrapped;
+      }
+
+      const start = raw.indexOf("{");
+      const end = raw.lastIndexOf("}");
+      if(start >= 0 && end > start){
+        const sliced = raw.slice(start, end + 1);
+        const parsedSliced = safeJsonParse(sliced);
+        if(parsedSliced?.prompt) return parsedSliced;
+      }
+
+      return null;
+    }
+
+    function safeJsonParse(text){
+      try{
+        return JSON.parse(text);
+      }catch(_err){
+        return null;
+      }
     }
 
     async function getMetadataJsonForSave(file){
