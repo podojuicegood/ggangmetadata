@@ -497,12 +497,6 @@ border: 0.7px solid #808080;
        border-radius:14px;
     }
 
-    #themeCustomCss{
-      min-height:90px;
-      font-family:monospace;
-      font-size:12px;
-      line-height:1.4;
-    }
 
     .theme-list{
       margin-top:16px;
@@ -772,8 +766,6 @@ border: 0.7px solid #808080;
 
       <input type="text" id="themeName" placeholder="테마 이름 입력">
 
-      <label class="theme-label">커스텀 CSS</label>
-      <textarea id="themeCustomCss" placeholder="예: .gallery-item{ border-radius:20px; }"></textarea>
 
       <div class="modal-actions">
     <button type="button" onclick="resetThemeToDefault()">초기화</button>
@@ -789,7 +781,6 @@ border: 0.7px solid #808080;
     const GALLERY_STORE_NAME = "galleryItems";
     const THEMES_STORAGE_KEY = "ggang_saved_themes_v2";
     const ACTIVE_THEME_STORAGE_KEY = "ggang_active_theme_v2";
-    const CUSTOM_THEME_STYLE_ID = "ggang_custom_theme_style";
 
     const DEFAULT_THEME = {
       name: "Default",
@@ -800,8 +791,7 @@ border: 0.7px solid #808080;
       buttonTextColor: "#ffffff",
       borderColor: "#d3d7c1",
       editColor: "#eae9e6",
-      buttonShadowColor: "#c98daa",
-      customCss: ""
+      buttonShadowColor: "#c98daa"
     };
 
     let currentFile = null;
@@ -811,31 +801,10 @@ border: 0.7px solid #808080;
     let currentCharUC = "";
     let currentMetadata = null;
 
-    const DEFAULT_NEGATIVE_TERMS = new Set([
-      "nsfw",
-      "lowres",
-      "artistic error",
-      "film grain",
-      "scan artifacts",
-      "worst quality",
-      "bad quality",
-      "jpeg artifacts",
-      "very displeasing",
-      "chromatic aberration",
-      "dithering",
-      "halftone",
-      "screentone",
-      "multiple views",
-      "logo",
-      "too many watermarks",
-      "negative space",
-      "blank page"
-    ]);
     let currentGalleryItemId = null;
     let galleryData = [];
     let pendingGalleryFile = null;
     let savedThemes = JSON.parse(localStorage.getItem(THEMES_STORAGE_KEY) || "[]");
-    let activeCustomCss = "";
 
     document.getElementById("imageInput").addEventListener("change", function(event){
       const file = event.target.files[0];
@@ -861,7 +830,7 @@ border: 0.7px solid #808080;
       try{
         const data = await exifr.parse(file, true);
 
-        let jsonText = data.Comment || data.comment || null;
+        let jsonText = null;
 
         for(const key in data){
           if(typeof data[key] === "string" && data[key].includes('"prompt"')){
@@ -885,7 +854,7 @@ border: 0.7px solid #808080;
     function applyMetadataToUI(nai){
       currentMetadata = nai ? JSON.parse(JSON.stringify(nai)) : null;
       basePrompt = nai.prompt || "";
-      negativePrompt = sanitizeNegativePrompt(nai.uc || "");
+      negativePrompt = nai.uc || "";
       currentCharPrompt = "";
       currentCharUC = "";
 
@@ -948,16 +917,6 @@ document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
       }
     }
 
-    function sanitizeNegativePrompt(text){
-      if(!text) return "";
-
-      return text
-        .split(",")
-        .map(term => term.trim())
-        .filter(term => term && !DEFAULT_NEGATIVE_TERMS.has(term.toLowerCase()))
-        .join(", ");
-    }
-
     function clearMetadataDisplay(){
       currentMetadata = null;
       currentGalleryItemId = null;
@@ -989,7 +948,7 @@ document.getElementById("rescale").textContent = "-";
       if(!currentMetadata) return;
 
       currentMetadata.prompt = basePrompt;
-      currentMetadata.uc = sanitizeNegativePrompt(negativePrompt);
+      currentMetadata.uc = negativePrompt;
       negativePrompt = currentMetadata.uc;
       document.getElementById("negative").textContent = negativePrompt;
 
@@ -1347,7 +1306,6 @@ document.getElementById("rescale").textContent = "-";
       document.getElementById("themeBorder").value = rgbToHex(style.getPropertyValue("--border-color").trim());
       document.getElementById("themeEdit").value = rgbToHex(style.getPropertyValue("--edit-color").trim());
       document.getElementById("themeButtonShadow").value = rgbToHex(style.getPropertyValue("--button-shadow-color").trim());
-      document.getElementById("themeCustomCss").value = activeCustomCss;
     }
 
     function getThemeFromInputs(){
@@ -1360,8 +1318,7 @@ document.getElementById("rescale").textContent = "-";
         buttonTextColor: document.getElementById("themeButtonText").value,
         borderColor: document.getElementById("themeBorder").value,
         editColor: document.getElementById("themeEdit").value,
-        buttonShadowColor: document.getElementById("themeButtonShadow").value,
-        customCss: document.getElementById("themeCustomCss").value.trim()
+        buttonShadowColor: document.getElementById("themeButtonShadow").value
       };
     }
 
@@ -1372,18 +1329,6 @@ document.getElementById("rescale").textContent = "-";
       const g = (bigint >> 8) & 255;
       const b = bigint & 255;
       return `rgba(${r},${g},${b},${alpha})`;
-    }
-
-    function applyCustomCss(cssText){
-      let styleEl = document.getElementById(CUSTOM_THEME_STYLE_ID);
-      if(!styleEl){
-        styleEl = document.createElement("style");
-        styleEl.id = CUSTOM_THEME_STYLE_ID;
-        document.head.appendChild(styleEl);
-      }
-
-      activeCustomCss = cssText || "";
-      styleEl.textContent = activeCustomCss;
     }
 
     function applyTheme(theme){
@@ -1397,9 +1342,7 @@ document.getElementById("rescale").textContent = "-";
       document.documentElement.style.setProperty("--button-shadow-color", theme.buttonShadowColor);
       document.documentElement.style.setProperty("--button-shadow-rgba", hexToRgba(theme.buttonShadowColor, 0.35));
 
-      const normalizedTheme = { ...theme, customCss: theme.customCss || "" };
-      applyCustomCss(normalizedTheme.customCss);
-      localStorage.setItem(ACTIVE_THEME_STORAGE_KEY, JSON.stringify(normalizedTheme));
+      localStorage.setItem(ACTIVE_THEME_STORAGE_KEY, JSON.stringify(theme));
     }
 
     function saveTheme(){
@@ -1471,7 +1414,7 @@ document.getElementById("rescale").textContent = "-";
     }
 
     function resetThemeToDefault(){
-      applyTheme({ ...DEFAULT_THEME, customCss: "" });
+      applyTheme(DEFAULT_THEME);
       fillThemeInputsFromCurrent();
     }
 
