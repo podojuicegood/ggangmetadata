@@ -830,7 +830,7 @@ border: 0.7px solid #808080;
       try{
         const data = await exifr.parse(file, true);
 
-        let jsonText = null;
+        let jsonText = data.Comment || data.comment || null;
 
         for(const key in data){
           if(typeof data[key] === "string" && data[key].includes('"prompt"')){
@@ -1097,20 +1097,15 @@ document.getElementById("rescale").textContent = "-";
       });
     }
 
-    async function extractMetadataJsonFromFile(file){
-      try{
-        const data = await exifr.parse(file, true);
-
-        for(const key in data){
-          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
-            return data[key];
-          }
-        }
-      }catch(err){
-        console.log(err);
-      }
-      return null;
-    }
+   async function extractMetadataJsonFromFile(file){
+  try{
+    const data = await exifr.parse(file, true);
+    return data.Comment || data.comment || null;
+  }catch(err){
+    console.log(err);
+  }
+  return null;
+}
 
     function renderGallery(){
       const gallery = document.getElementById("gallery");
