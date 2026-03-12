@@ -497,6 +497,13 @@ border: 0.7px solid #808080;
        border-radius:14px;
     }
 
+    #themeCustomCss{
+      min-height:90px;
+      font-family:monospace;
+      font-size:12px;
+      line-height:1.4;
+    }
+
     .theme-list{
       margin-top:16px;
       display:flex;
@@ -612,8 +619,8 @@ border: 0.7px solid #808080;
     <button type="button" id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
     <button type="button" id="addGalleryBtn" onclick="addCurrentToGallery()" style="display:none;">갤러리 추가</button>
     <input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
-    <button type="button" id="memoBtn" class="theme-button" onclick="openMemoModal()" style="display:none;">메모</button>
-    <button type="button" onclick="openThemeModal()">테마</button>
+    <button type="button" id="memoBtn" onclick="openMemoModal()" style="display:none;">메모</button>
+    <button type="button" class="theme-button" onclick="openThemeModal()">테마</button>
   </div>
 
   <div class="container">
@@ -765,6 +772,9 @@ border: 0.7px solid #808080;
 
       <input type="text" id="themeName" placeholder="테마 이름 입력">
 
+      <label class="theme-label">커스텀 CSS</label>
+      <textarea id="themeCustomCss" placeholder="예: .gallery-item{ border-radius:20px; }"></textarea>
+
       <div class="modal-actions">
     <button type="button" onclick="resetThemeToDefault()">초기화</button>
     <button type="button" onclick="saveTheme()">저장</button>
@@ -779,6 +789,7 @@ border: 0.7px solid #808080;
     const GALLERY_STORE_NAME = "galleryItems";
     const THEMES_STORAGE_KEY = "ggang_saved_themes_v2";
     const ACTIVE_THEME_STORAGE_KEY = "ggang_active_theme_v2";
+    const CUSTOM_THEME_STYLE_ID = "ggang_custom_theme_style";
 
     const DEFAULT_THEME = {
       name: "Default",
@@ -789,7 +800,8 @@ border: 0.7px solid #808080;
       buttonTextColor: "#ffffff",
       borderColor: "#d3d7c1",
       editColor: "#eae9e6",
-      buttonShadowColor: "#c98daa"
+      buttonShadowColor: "#c98daa",
+      customCss: ""
     };
 
     let currentFile = null;
@@ -823,6 +835,7 @@ border: 0.7px solid #808080;
     let galleryData = [];
     let pendingGalleryFile = null;
     let savedThemes = JSON.parse(localStorage.getItem(THEMES_STORAGE_KEY) || "[]");
+    let activeCustomCss = "";
 
     document.getElementById("imageInput").addEventListener("change", function(event){
       const file = event.target.files[0];
@@ -1334,6 +1347,7 @@ document.getElementById("rescale").textContent = "-";
       document.getElementById("themeBorder").value = rgbToHex(style.getPropertyValue("--border-color").trim());
       document.getElementById("themeEdit").value = rgbToHex(style.getPropertyValue("--edit-color").trim());
       document.getElementById("themeButtonShadow").value = rgbToHex(style.getPropertyValue("--button-shadow-color").trim());
+      document.getElementById("themeCustomCss").value = activeCustomCss;
     }
 
     function getThemeFromInputs(){
@@ -1346,7 +1360,8 @@ document.getElementById("rescale").textContent = "-";
         buttonTextColor: document.getElementById("themeButtonText").value,
         borderColor: document.getElementById("themeBorder").value,
         editColor: document.getElementById("themeEdit").value,
-        buttonShadowColor: document.getElementById("themeButtonShadow").value
+        buttonShadowColor: document.getElementById("themeButtonShadow").value,
+        customCss: document.getElementById("themeCustomCss").value.trim()
       };
     }
 
@@ -1357,6 +1372,18 @@ document.getElementById("rescale").textContent = "-";
       const g = (bigint >> 8) & 255;
       const b = bigint & 255;
       return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    function applyCustomCss(cssText){
+      let styleEl = document.getElementById(CUSTOM_THEME_STYLE_ID);
+      if(!styleEl){
+        styleEl = document.createElement("style");
+        styleEl.id = CUSTOM_THEME_STYLE_ID;
+        document.head.appendChild(styleEl);
+      }
+
+      activeCustomCss = cssText || "";
+      styleEl.textContent = activeCustomCss;
     }
 
     function applyTheme(theme){
@@ -1370,7 +1397,9 @@ document.getElementById("rescale").textContent = "-";
       document.documentElement.style.setProperty("--button-shadow-color", theme.buttonShadowColor);
       document.documentElement.style.setProperty("--button-shadow-rgba", hexToRgba(theme.buttonShadowColor, 0.35));
 
-      localStorage.setItem(ACTIVE_THEME_STORAGE_KEY, JSON.stringify(theme));
+      const normalizedTheme = { ...theme, customCss: theme.customCss || "" };
+      applyCustomCss(normalizedTheme.customCss);
+      localStorage.setItem(ACTIVE_THEME_STORAGE_KEY, JSON.stringify(normalizedTheme));
     }
 
     function saveTheme(){
@@ -1442,7 +1471,7 @@ document.getElementById("rescale").textContent = "-";
     }
 
     function resetThemeToDefault(){
-      applyTheme(DEFAULT_THEME);
+      applyTheme({ ...DEFAULT_THEME, customCss: "" });
       fillThemeInputsFromCurrent();
     }
 
