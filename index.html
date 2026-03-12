@@ -854,7 +854,7 @@ border: 0.7px solid #808080;
     function applyMetadataToUI(nai){
       currentMetadata = nai ? JSON.parse(JSON.stringify(nai)) : null;
       basePrompt = nai.prompt || "";
-negativePrompt = nai.v4_negative_prompt?.caption?.base_caption || nai.uc || "";
+negativePrompt = nai.v4_negative_prompt?.caption?.base_caption ?? nai.uc ?? "";
       currentCharPrompt = "";
       currentCharUC = "";
 
