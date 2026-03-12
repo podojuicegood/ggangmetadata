@@ -768,6 +768,8 @@ border: 0.7px solid #808080;
     let negativePrompt = "";
     let currentCharPrompt = "";
     let currentCharUC = "";
+    let currentMetadata = null;
+    let currentGalleryItemId = null;
     let galleryData = [];
     let pendingGalleryFile = null;
     let savedThemes = JSON.parse(localStorage.getItem(THEMES_STORAGE_KEY) || "[]");
@@ -780,6 +782,7 @@ border: 0.7px solid #808080;
 
     async function handleImageFile(file){
       currentFile = file;
+      currentGalleryItemId = null;
       document.getElementById("saveBtn").style.display = "inline-block";
       document.getElementById("addGalleryBtn").style.display = "inline-block";
 
@@ -816,6 +819,7 @@ border: 0.7px solid #808080;
     }
 
     function applyMetadataToUI(nai){
+      currentMetadata = nai ? JSON.parse(JSON.stringify(nai)) : null;
       basePrompt = nai.prompt || "";
       negativePrompt = nai.uc || "";
       currentCharPrompt = "";
@@ -857,11 +861,13 @@ document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
       });
     }
 
-    function toggleEdit(id, btn){
+    async function toggleEdit(id, btn){
       const el = document.getElementById(id);
       if(!el) return;
 
       if(el.contentEditable === "true"){
+        syncEditableValues();
+        await persistCurrentGalleryMetadata();
         el.contentEditable = "false";
         btn.textContent = "Edit";
       }else{
@@ -879,6 +885,8 @@ document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
     }
 
     function clearMetadataDisplay(){
+      currentMetadata = null;
+      currentGalleryItemId = null;
       basePrompt = "";
       negativePrompt = "";
       currentCharPrompt = "";
@@ -895,6 +903,36 @@ document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
       document.getElementById("charUC").textContent = "";
 document.getElementById("rescale").textContent = "-";
       resetEditStates();
+    }
+
+    function syncEditableValues(){
+      basePrompt = document.getElementById("prompt").innerText;
+      negativePrompt = document.getElementById("negative").innerText;
+      currentCharPrompt = document.getElementById("charPrompt").innerText;
+      currentCharUC = document.getElementById("charUC").innerText;
+
+      if(!currentMetadata) return;
+
+      currentMetadata.prompt = basePrompt;
+      currentMetadata.uc = negativePrompt;
+
+      if(currentMetadata.v4_prompt?.caption?.char_captions?.[0]){
+        currentMetadata.v4_prompt.caption.char_captions[0].char_caption = currentCharPrompt;
+      }
+
+      if(currentMetadata.v4_negative_prompt?.caption?.char_captions?.[0]){
+        currentMetadata.v4_negative_prompt.caption.char_captions[0].char_caption = currentCharUC;
+      }
+    }
+
+    async function persistCurrentGalleryMetadata(){
+      if(!currentGalleryItemId || !currentMetadata) return;
+
+      const item = galleryData.find(g => g.id === currentGalleryItemId);
+      if(!item) return;
+
+      item.metadataJson = JSON.stringify(currentMetadata);
+      await saveGalleryToDB();
     }
 
     function flashButton(buttonId, defaultText){
@@ -941,13 +979,16 @@ document.getElementById("rescale").textContent = "-";
       document.getElementById("saveModal").style.display = "none";
     }
 
-    function saveImageAs(){
+    async function saveImageAs(){
       if(!currentFile) return;
 
       let newName = document.getElementById("saveFileName").value.trim();
       if(!newName){
         newName = "image";
       }
+
+      syncEditableValues();
+      await persistCurrentGalleryMetadata();
 
       const ext = currentFile.name.split(".").pop() || "png";
       const finalName = `${newName}.${ext}`;
@@ -1071,6 +1112,7 @@ document.getElementById("rescale").textContent = "-";
     async function loadGalleryItem(id){
       const item = galleryData.find(g => g.id === id);
       if(!item) return;
+      currentGalleryItemId = id;
 
       document.getElementById("preview").src = item.imageDataUrl;
       document.getElementById("preview").style.display = "block";
