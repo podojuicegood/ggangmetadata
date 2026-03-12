@@ -830,21 +830,15 @@ border: 0.7px solid #808080;
       try{
         const data = await exifr.parse(file, true);
 
-        let jsonText = data.Comment || data.comment || null;
+let jsonText = data.Comment || data.comment || null;
 
-        for(const key in data){
-          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
-            jsonText = data[key];
-          }
-        }
+if(!jsonText){
+  clearMetadataDisplay();
+  return;
+}
 
-        if(!jsonText){
-          clearMetadataDisplay();
-          return;
-        }
-
-        const nai = JSON.parse(jsonText);
-        applyMetadataToUI(nai);
+const nai = JSON.parse(jsonText);
+applyMetadataToUI(nai);
 
       }catch(err){
         console.log(err);
