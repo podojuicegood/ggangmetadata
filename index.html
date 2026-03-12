@@ -861,7 +861,7 @@ border: 0.7px solid #808080;
       try{
         const data = await exifr.parse(file, true);
 
-        let jsonText = null;
+        let jsonText = data.Comment || data.comment || null;
 
         for(const key in data){
           if(typeof data[key] === "string" && data[key].includes('"prompt"')){
