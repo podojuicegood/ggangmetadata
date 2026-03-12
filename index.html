@@ -830,11 +830,15 @@ border: 0.7px solid #808080;
       try{
         const data = await exifr.parse(file, true);
 
-        let jsonText = null;
+        let jsonText = data?.Comment || data?.comment || null;
 
-        for(const key in data){
-          if(typeof data[key] === "string" && data[key].includes('"prompt"')){
-            jsonText = data[key];
+        if(!(typeof jsonText === "string" && jsonText.includes('"prompt"'))){
+          jsonText = null;
+          for(const key in data){
+            if(typeof data[key] === "string" && data[key].includes('"prompt"')){
+              jsonText = data[key];
+              break;
+            }
           }
         }
 
@@ -1106,6 +1110,10 @@ document.getElementById("rescale").textContent = "-";
     async function extractMetadataJsonFromFile(file){
       try{
         const data = await exifr.parse(file, true);
+        const directComment = data?.Comment || data?.comment || null;
+        if(typeof directComment === "string" && directComment.includes('"prompt"')){
+          return directComment;
+        }
 
         for(const key in data){
           if(typeof data[key] === "string" && data[key].includes('"prompt"')){
@@ -1128,14 +1136,7 @@ document.getElementById("rescale").textContent = "-";
 
     async function buildEditedPngFile(file, metadataJson){
       const sourceBytes = new Uint8Array(await file.arrayBuffer());
-      const keywordBytes = new TextEncoder().encode("Comment");
-      const textBytes = new TextEncoder().encode(metadataJson || "");
-      const chunkData = new Uint8Array(keywordBytes.length + 1 + textBytes.length);
-      chunkData.set(keywordBytes, 0);
-      chunkData[keywordBytes.length] = 0;
-      chunkData.set(textBytes, keywordBytes.length + 1);
-
-      const commentChunk = createPngChunk("tEXt", chunkData);
+      const commentChunk = createPngChunk("tEXt", buildPngTextData("Comment", toLatin1SafeText(metadataJson || "")));
 
       const PNG_SIGNATURE_LENGTH = 8;
       const chunks = [];
@@ -1168,7 +1169,9 @@ document.getElementById("rescale").textContent = "-";
           break;
         }
 
-        if(type !== "tEXt" || !pngTextChunkIsComment(sourceBytes.slice(dataStart, dataEnd))){
+        const isCommentTextChunk = ["tEXt", "iTXt", "zTXt"].includes(type)
+          && pngTextualChunkIsComment(sourceBytes.slice(dataStart, dataEnd));
+        if(!isCommentTextChunk){
           chunks.push(chunkBytes);
         }
 
@@ -1190,7 +1193,35 @@ document.getElementById("rescale").textContent = "-";
       return new File([output], file.name, { type: file.type || "image/png" });
     }
 
-    function pngTextChunkIsComment(data){
+    function buildPngTextData(keyword, text){
+      const keywordBytes = new TextEncoder().encode(keyword);
+      const textBytes = new TextEncoder().encode(text);
+      const output = new Uint8Array(keywordBytes.length + 1 + textBytes.length);
+      output.set(keywordBytes, 0);
+      output[keywordBytes.length] = 0;
+      output.set(textBytes, keywordBytes.length + 1);
+      return output;
+    }
+
+    function toLatin1SafeText(text){
+      return Array.from(text).map(ch => {
+        const code = ch.codePointAt(0);
+        if(code <= 0x7f){
+          return ch;
+        }
+
+        if(code <= 0xffff){
+          return `\\u${code.toString(16).padStart(4, "0")}`;
+        }
+
+        const cp = code - 0x10000;
+        const high = 0xd800 + (cp >> 10);
+        const low = 0xdc00 + (cp & 0x3ff);
+        return `\\u${high.toString(16).padStart(4, "0")}\\u${low.toString(16).padStart(4, "0")}`;
+      }).join("");
+    }
+
+    function pngTextualChunkIsComment(data){
       const separatorIndex = data.indexOf(0);
       if(separatorIndex < 0) return false;
       const key = readAscii(data, 0, separatorIndex);
