@@ -427,6 +427,22 @@
       color:var(--text-color);
     }
 
+
+    .modal-box textarea{
+      width:100%;
+      min-height:120px;
+      padding:10px 12px;
+      border:1px solid var(--border-color);
+      border-radius:12px;
+      font-size:14px;
+      margin-bottom:14px;
+      outline:none;
+      resize:vertical;
+      font-family:'Pretendard', sans-serif;
+      color:var(--text-color);
+      background:#fff;
+    }
+
     .modal-box input[type="text"]{
       width:100%;
       padding:10px 12px;
@@ -596,7 +612,8 @@ border: 0.7px solid #808080;
     <button type="button" id="saveBtn" onclick="openSaveModal()" style="display:none;">저장</button>
     <button type="button" id="addGalleryBtn" onclick="addCurrentToGallery()" style="display:none;">갤러리 추가</button>
     <input type="file" id="imageInput" style="display:none;" accept="image/png,image/jpeg,image/webp">
-    <button type="button" class="theme-button" onclick="openThemeModal()">테마</button>
+    <button type="button" id="memoBtn" class="theme-button" onclick="openMemoModal()" style="display:none;">메모</button>
+    <button type="button" onclick="openThemeModal()">테마</button>
   </div>
 
   <div class="container">
@@ -699,6 +716,18 @@ border: 0.7px solid #808080;
       <div class="modal-actions">
         <button type="button" onclick="closeGalleryModal()">취소</button>
         <button type="button" onclick="confirmAddToGallery()">저장</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="memoModal" class="modal" style="display:none;">
+    <div class="modal-box">
+      <h3>이미지 메모</h3>
+      <textarea id="memoText" placeholder="이 이미지에 대한 메모를 입력하세요"></textarea>
+      <div class="modal-actions">
+        <button type="button" onclick="closeMemoModal()">취소</button>
+        <button type="button" onclick="saveMemo()">저장</button>
       </div>
     </div>
   </div>
@@ -806,6 +835,7 @@ border: 0.7px solid #808080;
       currentGalleryItemId = null;
       document.getElementById("saveBtn").style.display = "inline-block";
       document.getElementById("addGalleryBtn").style.display = "inline-block";
+      document.getElementById("memoBtn").style.display = "none";
 
       const reader = new FileReader();
       reader.onload = function(e){
@@ -934,6 +964,7 @@ document.getElementById("rescale").textContent = nai.cfg_rescale ?? "-";
       document.getElementById("charUC").textContent = "";
 document.getElementById("rescale").textContent = "-";
       resetEditStates();
+      document.getElementById("memoBtn").style.display = "none";
     }
 
     function syncEditableValues(){
@@ -1076,7 +1107,8 @@ document.getElementById("rescale").textContent = "-";
         name: customName || file.name,
         originalFileName: file.name,
         imageDataUrl,
-        metadataJson
+        metadataJson,
+        memo: ""
       };
 
       galleryData.push(item);
@@ -1153,6 +1185,7 @@ document.getElementById("rescale").textContent = "-";
 
       document.getElementById("saveBtn").style.display = "inline-block";
       document.getElementById("addGalleryBtn").style.display = "none";
+      document.getElementById("memoBtn").style.display = "inline-block";
 
       try{
         const nai = JSON.parse(item.metadataJson);
@@ -1253,6 +1286,32 @@ document.getElementById("rescale").textContent = "-";
           reject(request.error);
         };
       });
+    }
+
+
+    function openMemoModal(){
+      if(!currentGalleryItemId) return;
+
+      const item = galleryData.find(g => g.id === currentGalleryItemId);
+      if(!item) return;
+
+      document.getElementById("memoText").value = item.memo || "";
+      document.getElementById("memoModal").style.display = "flex";
+    }
+
+    function closeMemoModal(){
+      document.getElementById("memoModal").style.display = "none";
+    }
+
+    async function saveMemo(){
+      if(!currentGalleryItemId) return;
+
+      const item = galleryData.find(g => g.id === currentGalleryItemId);
+      if(!item) return;
+
+      item.memo = document.getElementById("memoText").value.trim();
+      await saveGalleryToDB();
+      closeMemoModal();
     }
 
     function openThemeModal(){
