@@ -848,7 +848,7 @@ applyMetadataToUI(nai);
     function applyMetadataToUI(nai){
       currentMetadata = nai ? JSON.parse(JSON.stringify(nai)) : null;
       basePrompt = nai.prompt || "";
-negativePrompt = nai.uc || "";
+      negativePrompt = nai.uc ?? "";
       currentCharPrompt = "";
       currentCharUC = "";
 
@@ -1064,6 +1064,7 @@ document.getElementById("rescale").textContent = "-";
 
     async function addToGallery(file, customName){
       const imageDataUrl = await readFileAsDataURL(file);
+      syncEditableValues();
       const metadataJson = await extractMetadataJsonFromFile(file);
 
       if(!metadataJson) return;
