@@ -1111,49 +1111,55 @@ document.getElementById("rescale").textContent = "-";
     }
 
     function extractMetadataObjectFromExifData(data){
-       if(!data) return null;
+      if(!data) return null;
 
-  if(isLikelyMetadataObject(data)){
-    return data;
-  }
+      if(isLikelyMetadataObject(data)){
+        return data;
+      }
 
-  const candidates = [];
+      const candidates = [];
+      const directComment = normalizeMetadataCandidateToString(data.Comment);
+      if(directComment) candidates.push(directComment);
 
-  if(typeof data.Comment === "string") candidates.push(data.Comment);
-  if(typeof data.comment === "string") candidates.push(data.comment);
-  if(typeof data.parameters === "string") candidates.push(data.parameters);
-  if(typeof data.UserComment === "string") candidates.push(data.UserComment);
-  if(typeof data.Description === "string") candidates.push(data.Description);
+      const lowerComment = normalizeMetadataCandidateToString(data.comment);
+      if(lowerComment) candidates.push(lowerComment);
 
-  for(const key in data){
+      for(const key in data){
+        const normalized = normalizeMetadataCandidateToString(data[key]);
+        if(normalized){
+          candidates.push(normalized);
+        }
+      }
 
-    const value = data[key];
+      for(const candidate of candidates){
+        const parsed = parseMetadataCandidate(candidate);
+        if(parsed) return parsed;
+      }
 
-    if(typeof value === "string"){
-      candidates.push(value);
+      return null;
     }
 
-    if(typeof value === "object" && value){
+    function normalizeMetadataCandidateToString(value){
+      if(typeof value === "string"){
+        return value;
+      }
+
+      let bytes = null;
+      if(value instanceof Uint8Array){
+        bytes = value;
+      }else if(value instanceof ArrayBuffer){
+        bytes = new Uint8Array(value);
+      }
+
+      if(!bytes) return null;
+
       try{
-        const str = JSON.stringify(value);
-        if(str) candidates.push(str);
-      }catch(e){}
+        const text = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+        return text.replace(/\u0000/g, "").trim();
+      }catch(_err){
+        return null;
+      }
     }
-
-  }
-
-  for(const candidate of candidates){
-
-    const parsed = parseMetadataCandidate(candidate);
-
-    if(parsed){
-      return parsed;
-    }
-
-  }
-
-  return null;
-}
 
     function parseMetadataCandidate(candidate){
       if(typeof candidate !== "string") return null;
